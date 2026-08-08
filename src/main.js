@@ -136,7 +136,7 @@ navigator.requestMIDIAccess && navigator.requestMIDIAccess().then(m => {
       : midi.outputs.size ? "midi: pick your output →" : "midi: no outputs";
     $("status").className = out ? "ok" : "";
   };
-  sel.onchange = pick;
+  sel.onchange = () => { pick(); sel.blur(); };  // give keys back to triggers
   midi.onstatechange = fill;
   fill();
 }).catch(() => {
