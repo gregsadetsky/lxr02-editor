@@ -18,7 +18,7 @@
   padding:14px 14px; margin-top: 12px; margin-bottom:12px; color:var(--dim); font-size:12px; max-width:72ch;">
   <b style="color:var(--fg)">Micro Manual</b><br>
   1) connect your LXR-02 over MIDI (you must use Chrome)<br>
-  2) choose a kit — it should load on your LXR-02<br>
+  2) play around or choose a kit (it should load on your LXR-02)<br>
   3) you can type <b style="color:var(--hot)">K T G</b> or any letter below to trigger drums
   — BUT FIRST make sure that the notes and midi channels are correct<br>
   <span style="padding-left:1.5ch">3.1) check the midi channel+note: press 'voice',
@@ -31,21 +31,21 @@
   <label>cc ch <input type="number" id="ccch" min="1" max="16" value="1"></label>
 </div>
 
-<div class="bar">
+<div class="bar needsmidi">
   <label>kit <select id="kitsel"><option value="">— browse 117 kits —</option></select></label>
   <label>kit name <input type="text" id="kitname" maxlength="8" value="GARBAGE"></label>
   <span id="sndinfo" style="color:var(--dim)"></span>
 </div>
 
-<div class="bar">
+<div class="bar needsmidi">
   <button id="loadsnd">load .snd</button>
   <button id="savesnd">save .snd</button>
   <button id="sendall">send all ccs</button>
   <input type="file" id="sndfile" accept=".snd,.SND" hidden>
 </div>
 
-<div class="trigs" id="trigs"></div>
-<div class="cols" id="cols"></div>
+<div class="trigs needsmidi" id="trigs"></div>
+<div class="cols needsmidi" id="cols"></div>
 
 
 <div class="foot" style="margin-top:24px; border-top:1px solid var(--line); padding-top:12px; max-width:none;">

@@ -34,6 +34,9 @@ def wait_ready(pg):  # the kit browser fills async after fetching the .SNDs
     pg.wait_for_function(
         "document.getElementById('kitsel').options.length > 5", timeout=10000
     )
+    # headless has no midi output, which locks the whole page (by design —
+    # see test_page_is_locked_until_midi). unlock so tests can interact.
+    pg.evaluate("document.body.classList.remove('nomidi')")
 
 
 @pytest.fixture(scope="module")
@@ -352,3 +355,23 @@ def test_kit_browser_is_grouped_by_pack(page):
         "() => [...document.querySelectorAll('#kitsel option')].map(o => o.textContent)"
     )
     assert not any('(' in l for l in labels)  # clean names, no file parens
+
+
+def test_page_is_locked_until_midi(page):
+    """no output picked = whole editor inert (blind slider moves were a
+    trap). only the connect bar stays live."""
+    page.reload()
+    page.wait_for_function(
+        "document.getElementById('kitsel').options.length > 5", timeout=10000
+    )  # deliberately NOT wait_ready: we want the pristine locked state
+    state = page.evaluate("""() => ({
+        locked: document.body.classList.contains('nomidi'),
+        cols: getComputedStyle(document.getElementById('cols')).pointerEvents,
+        trigs: parseFloat(getComputedStyle(document.getElementById('trigs')).opacity),
+        connectbar: getComputedStyle(document.getElementById('outsel')).pointerEvents,
+    })""")
+    assert state["locked"]
+    assert state["cols"] == "none"
+    assert state["trigs"] < 0.5
+    assert state["connectbar"] != "none"  # picking an output must stay possible
+    page.evaluate("document.body.classList.remove('nomidi')")  # for later tests
