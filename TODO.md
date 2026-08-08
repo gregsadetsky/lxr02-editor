@@ -74,3 +74,27 @@
 - localStorage is BANNED on file:// in safari — it kills the whole script
 - midi.guide's list has errors at cc 55/57/73/74 — the OFFICIAL MANUAL
   (lxr02-docs/0.lxr02manual.pdf p.35-37) is the authority
+- nrpn map (manual 9.8, verified against kit-corpus value ranges): flt drive
+  0-5, mix/mod select 6-8 (v1-3 only), vel>vol on/off 9-14, vel amt 15-20,
+  vel dst 21-26, lfo wav 27-32 (0-7), lfo target voice 33-38 (1-6), lfo dst
+  39-44, lfo retrig 45-50 (0-6), lfo sync 51-56 (0-11), lfo offset 57-62,
+  flt type 63-68, click vol 69-74, click wav 75-80, click frq 81-86, audio
+  out routing 87-92 (0-6 seen), pwm 100-105, fx 106-117
+- dst enums (vel dst, lfo dst) index the machine's parameter table in page
+  order (off coa fin wav pwm atk dec slp ... drv p1-p4) and go PAST 127 in
+  real kit files (157 / 226 seen) — nrpn data entry is 7-bit, so values
+  >127 are file-only: the editor stores but cannot send them
+- "len" (mix page), and how ch/nte are byte-encoded in the file: unexplained
+
+## open device checks
+- click wav list: device shows 14 entries (snp ofs clk ck2 tik kik rim drp
+  hat clp kk2 snr tom sp2); manual/lxr-1 list had 15 (tk2 between hat and
+  clp). spin the wav knob through a full cycle and count — if 15, tell the
+  editor which one it's missing and where
+- fm page "mod" (nrpn 6-8): editor guesses 0=mix 1=mod — confirm on screen
+- global midi channel: device "ch 0" accepted ccs on ch 10 AND ch 1 —
+  consistent with 0 = omni/all. definitive test: set global ch to 5,
+  editor cc ch 5 must work and cc ch 10 must NOT
+- dst name table: to show names instead of numbers in the editor, read the
+  device dst name for 3+ known file bytes (rev-eng rule: no table without
+  3 reproduced observations)
