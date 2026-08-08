@@ -37,11 +37,14 @@ screen — no file juggling needed. file checks need the SD card afterwards.
   >127 dst bytes, and the FX block (nrpn 106-117) which the editor has
   NO controls for yet
 
-### a2b. modulation-writeback probe (decides the 6 suspect bytes)
-- ZUBFLAT.SND (on desktop) = zubat with all lfo amt + env mod amt zeroed
-- editor: load .snd ZUBFLAT (auto-sends), then device: save to a TMP slot
-- tell claude, card mounted → diff. if flt frq/vol dec/drive now match
-  byte-perfect, writeback confirmed and the map has ZERO real mismatches
+### a2b. modulation-writeback probe — CONFIRMED (zubflaaa, 2026-08-08)
+- with lfo amt + env mod amt zeroed, ALL 7 previous suspects round-trip
+  byte-perfect. running lfos/mod envs write into their target params and
+  the device saves the modulated instant. THE MAP IS FULLY VERIFIED:
+  215/215 addressable params byte-perfect
+- bonus reproducible pairs for the dst mystery: lfo dst nrpn send 40 ->
+  file 135 (twice), 22 -> 93 (twice), unsent slots kept 10/0/0/0. still
+  unexplained, but stable — c8 sweep will crack it
 
 ### a2c. editor fx section (found gap)
 - fx type/routing/amount/dist type/p1-p4/ratio/ringmod wav/delay type =

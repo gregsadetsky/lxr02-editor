@@ -75,6 +75,13 @@
 - localStorage is BANNED on file:// in safari — it kills the whole script
 - midi.guide's list has errors at cc 55/57/73/74 — the OFFICIAL MANUAL
   (lxr02-docs/0.lxr02manual.pdf p.35-37) is the authority
+- THE FULL MAP IS DEVICE-VERIFIED (zubtest/zubflaaa a-b diffs 2026-08-08):
+  every cc + nrpn the editor sends round-trips byte-perfect, 215/215
+- running lfos / mod envelopes WRITE INTO their target params on the
+  device; saving captures the modulated instant. a-b tests must zero
+  lfo amt + env mod amt first (that's what ZUBFLAT.SND is for)
+- lfo dst nrpn sends: 40 -> file byte 135, 22 -> 93 (both reproduced
+  twice). mechanism unexplained; dst >127 unsendable (7-bit data entry)
 - click wav list = EXACTLY 14 entries (snp ofs clk ck2 tik kik rim drp hat
   clp kk2 snr tom sp2), CONFIRMED by per-voice probe kit 2026-08-08: bytes
   9-13 read back clp/kk2/snr/tom/sp2, byte 14 shows BLANK (past the end).
