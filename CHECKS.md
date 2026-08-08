@@ -48,7 +48,7 @@ number).
 ### b6. clp/cym + hh modulation page: really just dst amt vol?
        (they have no mod envelope ccs)
 ### b7. signed/scaled displays — compare NUMBERS, not just order:
-- pan: editor shows 0-127. device might show -63..63
+- pan: DONE — device shows -63..+64, editor now matches
 - lfo frq, fm frq, click frq: scaled or verbatim?
 - vol slp / mod slp: verbatim? (63 = linear per the manual)
 - anything else where device shows negative or unit-ish numbers

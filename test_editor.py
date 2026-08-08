@@ -160,6 +160,12 @@ def test_tune_display_uses_device_scale(page):
         return el.closest('.prm').querySelector('.val').textContent;
     }""")
     assert ft == "-63"  # fine bottoms out at -63 like the device shows
+    pan = page.evaluate("""() => {
+        const el = document.querySelector('input[data-cc="95"]');
+        el.value = 127; el.dispatchEvent(new Event('input'));
+        return el.closest('.prm').querySelector('.val').textContent;
+    }""")
+    assert pan == "64"  # pan is -63..+64 on the device (user-verified)
 
 
 def test_pwm_is_an_nrpn_control(page):

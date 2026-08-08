@@ -45,9 +45,10 @@ const CCS = [
 [122,"V1","lfo","LFO AMT"],[123,"V2","lfo","LFO AMT"],[124,"V3","lfo","LFO AMT"],
 [125,"SN","lfo","LFO AMT"],[126,"CP","lfo","LFO AMT"],[127,"HH","lfo","LFO AMT"],
 ];
-// device display scales: coarse tune reads -60..+67, fine -63..+64
+// device display scales: coarse tune reads -60..+67, fine and pan -63..+64
 const disp = (name, v) =>
-  name.endsWith(" CT") ? v - 60 : name.endsWith(" FT") ? v - 63 : v;
+  name.endsWith(" CT") ? v - 60
+  : name.endsWith(" FT") || name === "PAN" ? v - 63 : v;
 const WAVEFORMS = ["sin","tri","saw","rec","noi","pwm"];
 // (cc values 6+ make the device DISPLAY "s0.." sample names, but the knob
 // can't reach them — firmware leftovers from the original LXR's sample

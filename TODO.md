@@ -59,7 +59,8 @@
   caused by OUR unpaced send-all flooding the lxr's internal serial link
   (mainboard->front runs at midi speed). sends are now paced 2ms apart.
   never bulk-send unpaced
-- displays: coarse tune = byte-60 (-60..+67), fine = byte-63 (-63..+64),
+- displays: coarse tune = byte-60 (-60..+67), fine AND pan = byte-63
+  (-63..+64, both user-verified),
   waveforms 0-5 = sin tri saw rec noi pwm (6+ shows phantom "s.." names —
   removed-feature leftovers, not real)
 - note names: octave = midi/12, no offset -> C5 = 60, b4 = 59. VERIFIED
