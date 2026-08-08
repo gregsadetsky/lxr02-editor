@@ -7,12 +7,13 @@ screen — no file juggling needed. file checks need the SD card afterwards.
 
 ## a. protocol sanity
 
-### a1. global midi channel: is 0 really omni?
-- device global page: set ch to 5
-- editor: cc ch 5, move any slider → device value must move
-- editor: cc ch 10, move a slider → device must NOT react
-- set device ch back to 0, confirm cc ch 1 works again
-- result answers "what does ch 0 mean" for the micro manual
+### a1. global midi channel: DONE (mostly)
+- CONFIRMED 2026-08-08: global ch filters to that one channel — device set
+  to 6, editor cc ch 6 works, other channels don't
+- editor default cc ch = 1, matches
+- leftover oddity: an earlier session showed "ch 0" on the device while
+  ch-10 ccs worked, but 0 can't be dialed anymore. unexplained (possibly
+  a misread of a different field) — not blocking anything
 
 ### a2. THE big one — full-map a/b test (proves every cc+nrpn in one shot)
 - editor: pick a dense kit, e.g. "zubat" (factory · proj00)
