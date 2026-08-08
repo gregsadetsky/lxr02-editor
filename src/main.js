@@ -123,18 +123,21 @@ navigator.requestMIDIAccess && navigator.requestMIDIAccess().then(m => {
   midi = m;
   const sel = $("outsel");
   const fill = () => {
-    sel.innerHTML = "";
+    sel.innerHTML = "<option value=''>— pick midi output —</option>";
     for (const o of midi.outputs.values()) {
       const opt = document.createElement("option");
       opt.value = o.id; opt.textContent = o.name;
-      if (/lxr/i.test(o.name)) opt.selected = true;
+      if (/lxr/i.test(o.name)) opt.selected = true;  // only the LXR auto-picks
       sel.appendChild(opt);
     }
     pick();
   };
   const pick = () => {
-    out = midi.outputs.get(sel.value) || [...midi.outputs.values()][0] || null;
-    $("status").textContent = out ? "midi: " + out.name : "midi: no outputs";
+    // NEVER fall back to "whatever output is first" — blasting a kit's ccs
+    // at an unsuspecting synth is how you ruin someone's patch
+    out = sel.value ? midi.outputs.get(sel.value) || null : null;
+    $("status").textContent = out ? "midi: " + out.name
+      : midi.outputs.size ? "midi: pick your output →" : "midi: no outputs";
     $("status").className = out ? "ok" : "";
   };
   sel.onchange = pick;
