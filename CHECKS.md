@@ -56,13 +56,23 @@ number).
 ## c. enums — read names off the screen while sweeping editor sliders
 
 ### c1. click wav: 14 or 15 entries?
-- editor list (from your reading): snp ofs clk ck2 tik kik rim drp hat
-  clp kk2 snr tom sp2 (14)
-- manual + lxr-1 firmware list 15, with "tk2" between hat and clp
-- device: step through the whole wav list ONCE, count + write the order.
-  if 15, everything after hat is shifted in the editor
-- spot-check bytes→names via kits (drum1 click wav): dropbar→snp(0),
-  nervous→ofs(1), napalm→clk(2), kronky→ck2(3)
+- knob sweep showed 14 (snp ofs clk ck2 tik kik rim drp hat clp kk2 snr
+  tom sp2); manual + lxr-1 firmware list 15 (tk2 between hat and clp)
+- decisive probe: CLKTEST.SND sets a DIFFERENT click wav byte per voice,
+  right in the contested tail. load .snd in the editor (auto-sends), then
+  read each voice's click page wav name:
+
+  | voice  | byte | 14-list says | 15-list says |
+  |--------|------|--------------|--------------|
+  | drum1  |  9   | clp          | tk2          |
+  | drum2  | 10   | kk2          | clp          |
+  | drum3  | 11   | snr          | ki2          |
+  | snare  | 12   | tom          | sna          |
+  | clpcym | 13   | sp2          | tom          |
+  | hh     | 14   | past the end | sp2          |
+
+  hh is the killer: a VALID name at byte 14 = the list has 15 entries.
+  whichever column matches the screens is the true list
 
 ### c2. fm page "mod" (mix/mod select): which is 0?
 - editor guesses 0=mix, 1=mod
