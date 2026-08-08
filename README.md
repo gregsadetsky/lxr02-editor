@@ -1,4 +1,4 @@
-# lxr-02 kit editor
+# LXR-02 kit editor
 
 ![lxr-02 kit editor](public/og.png)
 
