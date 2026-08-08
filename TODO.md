@@ -18,8 +18,6 @@
   firmware update rearranges the .snd layout, rewrite it (~40 lines,
   method: two cc-fingerprint passes saved on device, intersect offsets;
   documented in page comments)
-- before ever publishing: check license on the embedded hrtl kits (erica
-  distributes them free; page currently embeds 32 for the kit browser)
 - keyboard shortcuts are invisible since the keys: line was removed — make
   them discoverable: the orange letters on the trigger buttons ARE the keys
   but nothing says so. ideas: tooltip on hover ("press K"), a one-line hint
@@ -32,17 +30,10 @@
   from the sonicgarbage TODO; kits-as-json bridge)
 
 ## ship it (in order)
-- currently NOT a vite/react app — one self-contained vanilla index.html,
-  zero deps, runs from file:// (deliberate). KEEP that spirit when bundling
 - bundle as a vite app: split js into modules (ccmap, snd, midi, ui),
   kits as a json asset, vite build -> still a tiny static site
-- deploy with disco: DONE, live at https://lxr02.greg.technology
-  remember the usual: favicon + opengraph title/desc/image
 - little video demo: screen capture of pick-kit -> drum on keys -> tweak
   sliders -> save .snd. the editor demos itself in ~60s
-- open source the repo (public — explicit decision at that moment, after
-  the hrtl kit license check above; consider "open source, closed
-  contribution" per the main project's policy thinking)
 - post it where the lxr-02 people already are — the two concrete spots:
   https://gearspace.com/threads/erica-synths-lxr-02.1355285/page-13
   https://www.elektronauts.com/t/erica-synths-lxr-02-desktop-digital-drum-synthesizer/156287/61?page=48
