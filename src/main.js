@@ -90,7 +90,8 @@ const INIT_SND = "SW5pdGtpdAAAAAAAAQAEAB8/KT86Py1Afz8yPwAAAAAAAAB/PQAAAAA4f39/f3
 
 
 let midi = null, out = null;
-document.body.classList.add("nomidi");  // page unlocks when an output is picked
+// body starts with class="nomidi" IN THE HTML so the first paint is
+// already dimmed (adding it from js flashed bright->dim->bright)
 let raw = Uint8Array.from(atob(INIT_SND), c => c.charCodeAt(0)); // current .snd bytes
 // .snd layout: 8-byte name + one byte per parameter. VERIFIED 2026-08-07:
 // the whole cc block is stored VERBATIM at offset 7+cc (file byte = knob
