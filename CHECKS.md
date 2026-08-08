@@ -11,9 +11,16 @@ screen — no file juggling needed. file checks need the SD card afterwards.
 - CONFIRMED 2026-08-08: global ch filters to that one channel — device set
   to 6, editor cc ch 6 works, other channels don't
 - editor default cc ch = 1, matches
-- leftover oddity: an earlier session showed "ch 0" on the device while
-  ch-10 ccs worked, but 0 can't be dialed anymore. unexplained (possibly
-  a misread of a different field) — not blocking anything
+- leftover oddity, still open: some projects SHOW global ch 0 (seen again
+  2026-08-08 after loading another project) and with 0 displayed, ch-10
+  ccs worked. but the knob can't DIAL to 0 in the project where it was
+  set to 6. observations so far: (1) global ch is stored per project,
+  (2) 0 exists as a stored value, (3) a nonzero value filters to exactly
+  that channel. whether 0 = omni: not proven yet
+- next test, in a project showing 0: send ccs from the editor on ch 1,
+  then 5, then 10 — if ALL move the device, 0 behaves as omni (and is
+  probably only reachable as the never-touched default: once you dial
+  the knob you land in 1-16 with no way back to 0)
 
 ### a2. THE big one — full-map a/b test (proves every cc+nrpn in one shot)
 - editor: pick a dense kit, e.g. "zubat" (factory · proj00)
