@@ -59,6 +59,14 @@ const VIDX = { V1: 0, V2: 1, V3: 2, SN: 3, CP: 4, HH: 5 };
 const TRANSIENTS = ["snp","ofs","clk","ck2","tik","kik","rim","drp","hat",
                     "clp","kk2","snr","tom","sp2"];
 const FILTER_TYPES = ["lp","hp","bp","ubp","nch","pek","lp2","off"];  // device order
+// dst menus (lfo/velocity) walk the internal parameter table, which is
+// the cc map shifted by one: menu index n = (cc n+1)'s param. verified
+// 2026-08-08 by 28 consecutive device-screen readings (incl. the cc6
+// hole showing "off"). indices past the cc range: names unknown yet
+const DST_NAMES = { 0: "off", 5: "off", 97: "off", 98: "off" };  // holes:
+// enum 5/97/98 = the cc 6/98/99 gaps (data entry), device displays off
+for (const [cc, v, _s, name] of CCS)
+  DST_NAMES[cc - 1] = v.toLowerCase() + " " + name.toLowerCase();
 const VOICES = ["V1","V2","V3","SN","CP","HH","ALL"];
 const VOICE_LABEL = {V1:"drum1", V2:"drum2", V3:"drum3",
                      SN:"snare", CP:"clp/cym", HH:"cl hh · op hh", ALL:"master"};
@@ -172,7 +180,7 @@ function voicePages(v) {
   // device modulation page: dec slp mod, then velocity dst amt vol
   const mod = [...byName("MOD DEC"), ...byName("MOD SLP"), ...byName("ENV MOD AMT")];
   if (i !== undefined)
-    mod.push({ label: "vel dst", n: 21 + i, max: 255 },
+    mod.push({ label: "vel dst", n: 21 + i, max: 255, dst: true },
              { label: "vel amt", n: 15 + i, max: 127 },
              { label: "vel>vol", n: 9 + i, names: ["off", "on"] });
   if (mod.length) pages.push(["modulation", mod]);
@@ -200,7 +208,7 @@ function voicePages(v) {
              { label: "rtg", n: 45 + i, max: 6 },
              { label: "ofs", n: 57 + i, max: 127 },
              { label: "voi", n: 33 + i, max: 6 },
-             { label: "dst", n: 39 + i, max: 255 });
+             { label: "dst", n: 39 + i, max: 255, dst: true });
   if (lfo.length) pages.push(["lfo", lfo]);
   const mix = ccs("mix");
   if (i !== undefined) mix.push({ label: "out", n: 87 + i, max: 6 });
@@ -214,7 +222,8 @@ for (const v of VOICES) {
   const box = document.createElement("div");
   box.className = "voice";
   box.innerHTML = `<h2>${VOICE_LABEL[v]}</h2>`;
-  const addNrpn = ({ label, n, max, names }) => {
+  const addNrpn = ({ label, n, max, names, dst }) => {
+    const fmt = v => dst ? v + (DST_NAMES[v] ? " " + DST_NAMES[v] : "") : v;
     const row = document.createElement("div");
     row.className = "prm";
     if (names) {  // stepper with device names (like waveforms)
@@ -240,12 +249,12 @@ for (const v of VOICES) {
         <input type="range" min="0" max="${max}" value="0" data-nrpn="${n}">
         <span class="val">0</span>`;
       const inp = row.querySelector("input"), val = row.querySelector(".val");
-      inp.oninput = () => { val.textContent = inp.value;
+      inp.oninput = () => { val.textContent = fmt(+inp.value);
         // nrpn data entry is 7-bit: values past 127 (dst enums go there in
         // real kit files) stay file-only, the device can't be told about them
         if (+inp.value <= 127) sendNRPN(n, +inp.value);
         raw[NRPN_OFF(n)] = +inp.value; };
-      nrpnSliders[n] = { input: inp, valEl: val };
+      nrpnSliders[n] = { input: inp, valEl: val, fmt: dst ? fmt : null };
     }
     box.appendChild(row);
   };
@@ -387,7 +396,8 @@ function refreshFromRaw() {
     if (s.input.max !== "" && raw[off] > +s.input.max) s.input.max = raw[off];
     s.input.value = raw[off];
     s.valEl.textContent = s.names
-      ? (s.names[raw[off]] ?? raw[off]) : raw[off];
+      ? (s.names[raw[off]] ?? raw[off])
+      : s.fmt ? s.fmt(raw[off]) : raw[off];
   }
   drawAllEnvs();
 }

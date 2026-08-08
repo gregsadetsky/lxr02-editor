@@ -108,14 +108,18 @@ number).
 ### c7. mix out routing names (values 0-6)
 - sweep, write them (kits: lambo=0, faders=6)
 
-### c8. dst name table (vel dst + lfo dst) — the parameter-table enum
-- you saw: off coa fin wav pwm atk dec slp dec slp mod dst amt vol amt
-  frq wav mod ... drv p1 p2 p3 p4
-- editor lfo dst slider on drum1: sweep 0..30ish, write index→name pairs
-  (device shows the name, editor shows the number — perfect pairs)
-- known file bytes to cross-check: malware=0 (off?), dropbar=2, kronky=3,
-  robowasp=5, shortcir vel dst=22
-- 3+ verified pairs = claude encodes names into the editor
+### c8. dst name table — CRACKED (28-value sweep, 2026-08-08)
+- dst menu index n = internal param enum n = (cc n+1)'s parameter for the
+  whole cc range. verified 28/28 consecutive readings incl. the cc6 hole
+  showing "off". the editor now displays resolved names on dst sliders
+  ("40 sn flt frq"); indices past the cc range remain numbers (unknown)
+- STILL OPEN: what the dst FILE bytes mean. sent 40 -> saved 135, 22 ->
+  93 (reproduced twice), so file byte != menu index. next card session:
+  leave drum1 lfo dst on a known small value (say 27), save on device,
+  mount card -> find where 27 landed in the file. that locates the true
+  dst file offset (the 136+39..44 slots may belong to something else)
+- optional later: continue the sweep past 126 with the DEVICE knob to
+  name the nrpn-side tail (fx params etc. live up there, files reach 226)
 
 ## d. leftovers / unexplained
 
