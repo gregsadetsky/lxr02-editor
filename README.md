@@ -1,12 +1,13 @@
 # lxr-02 kit editor
 
+![lxr-02 kit editor](public/og.png)
+
 edit kits on the erica synths / sonic potions lxr-02 drum synth from
-your browser. live at https://lxr02.greg.technology (chrome — web midi).
+your browser. live at https://lxr02.greg.technology (chrome only).
 
 - every slider sends cc/nrpn to the device as you move it
 - browse 117 kits (hrtl packs + factory), picking one loads it instantly
 - load / save .snd files for the sd card
-- the whole midi map is device-verified byte-for-byte (see CHECKS.md)
 
 ## dev
 
