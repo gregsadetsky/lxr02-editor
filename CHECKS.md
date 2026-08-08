@@ -94,9 +94,9 @@ number).
   HIHAT voice showed sp2 at byte 13 — all voices share the same list,
   every index 0-13 now covered. this check is CLOSED
 
-### c2. fm page "mod" (mix/mod select): which is 0?
-- editor guesses 0=mix, 1=mod
-- kits: "lambo" drum1 = 0, "necro" drum1 = 1 — what does the screen say?
+### c2. fm page "mod" — DONE (device check 2026-08-08)
+- 0 = "FM", 1 = "Mix". the editor's mix/mod guess was wrong both ways;
+  stepper now shows fm/mix
 
 ### c3. lfo wav names — DONE (sweep 2026-08-08)
 - sin tri sup sdn sqr rnd xup xdn. now a named stepper in the editor.

@@ -206,7 +206,9 @@ function voicePages(v) {
   // device fm page: amt frq wav mod (wav = cc "WF MOD"; mod = mix/mod select)
   const fm = [...byName("FM AMT"), ...byName("FM FRQ"), ...byName("WF MOD")];
   if (fm.length && i !== undefined && i < 3)
-    fm.push({ label: "mod", n: 6 + i, names: ["mix", "mod"] });
+    // device-verified: 0 shows "FM" (osc2 modulates), 1 shows "Mix" (osc2
+    // blended in) — the manual's "Mix/Mod select" wording had it backwards
+    fm.push({ label: "mod", n: 6 + i, names: ["fm", "mix"] });
   if (fm.length) pages.push(["fm", fm]);
   if (i !== undefined)
     pages.push(["click", [{ label: "wav", n: 75 + i, names: TRANSIENTS },
