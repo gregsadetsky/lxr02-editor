@@ -150,8 +150,9 @@ navigator.requestMIDIAccess && navigator.requestMIDIAccess().then(m => {
     for (const o of midi.outputs.values()) {
       const opt = document.createElement("option");
       opt.value = o.id; opt.textContent = o.name;
-      if (stillThere ? o.id === chosen : /lxr/i.test(o.name))
+      if (stillThere ? o.id === chosen : /lxr|sonic potions/i.test(o.name))
         opt.selected = true;  // keep the pick; only the LXR auto-picks fresh
+        // (the lxr-02's usb port is named "Sonic Potions USB MIDI")
       sel.appendChild(opt);
     }
     pick();
