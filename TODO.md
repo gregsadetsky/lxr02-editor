@@ -75,6 +75,10 @@
 - localStorage is BANNED on file:// in safari — it kills the whole script
 - midi.guide's list has errors at cc 55/57/73/74 — the OFFICIAL MANUAL
   (lxr02-docs/0.lxr02manual.pdf p.35-37) is the authority
+- click wav list = EXACTLY 14 entries (snp ofs clk ck2 tik kik rim drp hat
+  clp kk2 snr tom sp2), CONFIRMED by per-voice probe kit 2026-08-08: bytes
+  9-13 read back clp/kk2/snr/tom/sp2, byte 14 shows BLANK (past the end).
+  manual p.32's 15-entry list is lxr-1 leftover
 - nrpn map (manual 9.8, verified against kit-corpus value ranges): flt drive
   0-5, mix/mod select 6-8 (v1-3 only), vel>vol on/off 9-14, vel amt 15-20,
   vel dst 21-26, lfo wav 27-32 (0-7), lfo target voice 33-38 (1-6), lfo dst

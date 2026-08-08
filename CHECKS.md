@@ -55,24 +55,13 @@ number).
 
 ## c. enums — read names off the screen while sweeping editor sliders
 
-### c1. click wav: 14 or 15 entries?
-- knob sweep showed 14 (snp ofs clk ck2 tik kik rim drp hat clp kk2 snr
-  tom sp2); manual + lxr-1 firmware list 15 (tk2 between hat and clp)
-- decisive probe: CLKTEST.SND sets a DIFFERENT click wav byte per voice,
-  right in the contested tail. load .snd in the editor (auto-sends), then
-  read each voice's click page wav name:
-
-  | voice  | byte | 14-list says | 15-list says |
-  |--------|------|--------------|--------------|
-  | drum1  |  9   | clp          | tk2          |
-  | drum2  | 10   | kk2          | clp          |
-  | drum3  | 11   | snr          | ki2          |
-  | snare  | 12   | tom          | sna          |
-  | clpcym | 13   | sp2          | tom          |
-  | hh     | 14   | past the end | sp2          |
-
-  hh is the killer: a VALID name at byte 14 = the list has 15 entries.
-  whichever column matches the screens is the true list
+### c1. click wav: DONE — 14 entries CONFIRMED (probe 2026-08-08)
+- CLKTEST.SND probe: bytes 9-13 read clp kk2 snr tom sp2 on the device,
+  exactly the 14-list. byte 14 (hh) showed a BLANK wav = past the end.
+- so: snp ofs clk ck2 tik kik rim drp hat clp kk2 snr tom sp2 is the true
+  lxr-02 list; the manual's 15-entry list (tk2, ki2, sna names) is lxr-1
+  leftover. editor already correct. out-of-range bytes display blank on
+  the device (no clamp, no wrap)
 
 ### c2. fm page "mod" (mix/mod select): which is 0?
 - editor guesses 0=mix, 1=mod
