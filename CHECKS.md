@@ -62,6 +62,9 @@ number).
   lxr-02 list; the manual's 15-entry list (tk2, ki2, sna names) is lxr-1
   leftover. editor already correct. out-of-range bytes display blank on
   the device (no clamp, no wrap)
+- probe 2 (2026-08-08): mid-list 4-8 read tik kik rim drp hat, and the
+  HIHAT voice showed sp2 at byte 13 — all voices share the same list,
+  every index 0-13 now covered. this check is CLOSED
 
 ### c2. fm page "mod" (mix/mod select): which is 0?
 - editor guesses 0=mix, 1=mod
