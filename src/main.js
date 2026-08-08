@@ -143,6 +143,8 @@ navigator.requestMIDIAccess && navigator.requestMIDIAccess().then(m => {
   sel.onchange = pick;
   midi.onstatechange = fill;
   fill();
+}).catch(() => {
+  $("status").textContent = "midi: blocked — allow midi access + reload";
 });
 
 // ---- ui build --------------------------------------------------------------
