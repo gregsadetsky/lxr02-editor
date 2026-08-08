@@ -74,7 +74,3 @@
 - localStorage is BANNED on file:// in safari — it kills the whole script
 - midi.guide's list has errors at cc 55/57/73/74 — the OFFICIAL MANUAL
   (lxr02-docs/0.lxr02manual.pdf p.35-37) is the authority
-
-## footer (add when shipping)
-- contact: hi@greg.technology
-- github repo link (once published)
