@@ -59,6 +59,9 @@ const VIDX = { V1: 0, V2: 1, V3: 2, SN: 3, CP: 4, HH: 5 };
 const TRANSIENTS = ["snp","ofs","clk","ck2","tik","kik","rim","drp","hat",
                     "clp","kk2","snr","tom","sp2"];
 const FILTER_TYPES = ["lp","hp","bp","ubp","nch","pek","lp2","off"];  // device order
+// lfo waveforms, read off the device by slider sweep 2026-08-08 (the
+// manual doesn't list them anywhere)
+const LFO_WAVES = ["sin","tri","sup","sdn","sqr","rnd","xup","xdn"];
 // dst menus (lfo/velocity) walk the internal parameter table, which is
 // the cc map shifted by one: menu index n = (cc n+1)'s param. verified
 // 2026-08-08 by 28 consecutive device-screen readings (incl. the cc6
@@ -206,7 +209,7 @@ function voicePages(v) {
   if (i !== undefined) lfo.push({ label: "snc", n: 51 + i, max: 11 });
   lfo.push(...byName("LFO AMT"));
   if (i !== undefined)
-    lfo.push({ label: "wav", n: 27 + i, max: 7 },
+    lfo.push({ label: "wav", n: 27 + i, names: LFO_WAVES },
              { label: "rtg", n: 45 + i, max: 6 },
              { label: "ofs", n: 57 + i, max: 127 },
              { label: "voi", n: 33 + i, max: 6 },

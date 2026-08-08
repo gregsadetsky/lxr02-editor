@@ -98,9 +98,9 @@ number).
 - editor guesses 0=mix, 1=mod
 - kits: "lambo" drum1 = 0, "necro" drum1 = 1 — what does the screen say?
 
-### c3. lfo wav names (values 0-7)
-- editor lfo wav slider on drum1: sweep 0→7, write the 8 names
-  (kits if preferred: malware=0, autobot=1, mist=2, lambo=3)
+### c3. lfo wav names — DONE (sweep 2026-08-08)
+- sin tri sup sdn sqr rnd xup xdn. now a named stepper in the editor.
+  not documented in the manual at all
 
 ### c4. lfo snc names (values 0-11) — sweep, write all 12
 ### c5. lfo rtg names (values 0-6) — sweep, write all 7
