@@ -106,7 +106,8 @@ number).
 - off 4/1 2/1 1/1 1/2 1/3 1/4 1/6 1/8 12 16 32. named stepper in editor.
 - open detail: do the last three literally read "12 16 32" on screen, or
   "1/12 1/16 1/32"? editor currently shows them exactly as reported
-### c5. lfo rtg names (values 0-6) — sweep, write all 7
+### c5. lfo rtg names — DONE (sweep 2026-08-08)
+- off v1 v2 v3 v4 v5 v6 (retrigger on that voice's hit). named stepper
 ### c6. lfo voi display (1-6) — voice names or numbers?
 ### c7. mix out routing names (values 0-6)
 - sweep, write them (kits: lambo=0, faders=6)

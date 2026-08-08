@@ -65,6 +65,8 @@ const LFO_WAVES = ["sin","tri","sup","sdn","sqr","rnd","xup","xdn"];
 // lfo sync: off = free-running, then clock divisions (device sweep)
 const LFO_SYNCS = ["off","4/1","2/1","1/1","1/2","1/3","1/4","1/6","1/8",
                    "12","16","32"];
+// lfo retrigger: off, or restart on any voice's trigger (device sweep)
+const LFO_RTGS = ["off","v1","v2","v3","v4","v5","v6"];
 // dst menus (lfo/velocity) walk the internal parameter table, which is
 // the cc map shifted by one: menu index n = (cc n+1)'s param. verified
 // 2026-08-08 by 28 consecutive device-screen readings (incl. the cc6
@@ -220,7 +222,7 @@ function voicePages(v) {
   lfo.push(...byName("LFO AMT"));
   if (i !== undefined)
     lfo.push({ label: "wav", n: 27 + i, names: LFO_WAVES },
-             { label: "rtg", n: 45 + i, max: 6 },
+             { label: "rtg", n: 45 + i, names: LFO_RTGS },
              { label: "ofs", n: 57 + i, max: 127 },
              { label: "voi", n: 33 + i, max: 6 },
              { label: "dst", n: 39 + i, max: 255, dst: true });
