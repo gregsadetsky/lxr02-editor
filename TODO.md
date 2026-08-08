@@ -36,7 +36,7 @@
   zero deps, runs from file:// (deliberate). KEEP that spirit when bundling
 - bundle as a vite app: split js into modules (ccmap, snd, midi, ui),
   kits as a json asset, vite build -> still a tiny static site
-- deploy with disco to lxr.greg.technology (needs https for web midi ✓).
+- deploy with disco: DONE, live at https://lxr02.greg.technology
   remember the usual: favicon + opengraph title/desc/image
 - little video demo: screen capture of pick-kit -> drum on keys -> tweak
   sliders -> save .snd. the editor demos itself in ~60s
