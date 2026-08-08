@@ -67,6 +67,8 @@ const LFO_SYNCS = ["off","4/1","2/1","1/1","1/2","1/3","1/4","1/6","1/8",
                    "12","16","32"];
 // lfo retrigger: off, or restart on any voice's trigger (device sweep)
 const LFO_RTGS = ["off","v1","v2","v3","v4","v5","v6"];
+// audio output routing: stereo pairs, singles, or the fx bus (device sweep)
+const OUT_ROUTES = ["st1","st2","l1","r1","l2","r2","fx"];
 // dst menus (lfo/velocity) walk the internal parameter table, which is
 // the cc map shifted by one: menu index n = (cc n+1)'s param. verified
 // 2026-08-08 by 28 consecutive device-screen readings (incl. the cc6
@@ -228,7 +230,7 @@ function voicePages(v) {
              { label: "dst", n: 39 + i, max: 255, dst: true });
   if (lfo.length) pages.push(["lfo", lfo]);
   const mix = ccs("mix");
-  if (i !== undefined) mix.push({ label: "out", n: 87 + i, max: 6 });
+  if (i !== undefined) mix.push({ label: "out", n: 87 + i, names: OUT_ROUTES });
   if (mix.length) pages.push(["mix", mix]);
   return pages;
 }
