@@ -1,5 +1,3 @@
-import { KITS } from "./kits.js";
-
 
 // ---- the cc map (midi.guide lxr-02, ~117 ccs) -------------------------------
 const CCS = [
@@ -366,21 +364,55 @@ $("savesnd").onclick = () => {
 
 // ---- embedded kit browser: pick a kit, hear it instantly -------------------
 const kitsel = $("kitsel");
-const KITS_FLAT = [];
-for (const [group, items] of KITS) {
-  const og = document.createElement("optgroup");
-  og.label = group;
-  for (const [name, b64] of items) {
-    const o = document.createElement("option");
-    o.value = KITS_FLAT.length; o.textContent = name;
-    KITS_FLAT.push(b64);
-    og.appendChild(o);
+const KIT_BYTES = [];
+// the kits are plain .SND files under src/kits/<NN-group>/ — vite bundles
+// their urls; we fetch them all at startup (117 x 255 bytes: nothing) to
+// read real kit names and group the browser
+const kitUrls = import.meta.glob("./kits/**/*.{SND,snd}", {
+  query: "?url", import: "default", eager: true,
+});
+(async () => {
+  const entries = Object.entries(kitUrls).sort(([a], [b]) => a.localeCompare(b));
+  const fetched = await Promise.all(entries.map(async ([path, url]) => {
+    const m = path.match(/\.\/kits\/\d+-([^/]+)\/([^/]+)$/);
+    if (!m || m[2].startsWith("._")) return null;
+    const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    return [m[1], m[2], buf];
+  }));
+  const seen = new Set();
+  const groups = new Map();
+  for (const hit of fetched) {
+    if (!hit) continue;
+    const [group, file, buf] = hit;
+    let name = [...buf.slice(0, 8)].filter(b => b >= 32 && b < 127)
+      .map(b => String.fromCharCode(b)).join("").trim().toLowerCase();
+    if (name.length < 3)
+      name = file.replace(/^\d+-/, "").replace(/\.snd$/i, "").toLowerCase();
+    if (["initkit", "inkit", "init"].includes(name.replace(/ /g, ""))) continue;
+    const key = buf.join(",");
+    if (seen.has(key)) continue;  // dedupe across packs by content
+    seen.add(key);
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group).push([name, buf]);
   }
-  kitsel.appendChild(og);
-}
+  let total = 0;
+  for (const [group, items] of groups) {
+    const og = document.createElement("optgroup");
+    og.label = group;
+    for (const [name, buf] of items) {
+      const o = document.createElement("option");
+      o.value = KIT_BYTES.length; o.textContent = name;
+      KIT_BYTES.push(buf);
+      og.appendChild(o);
+      total++;
+    }
+    kitsel.appendChild(og);
+  }
+  kitsel.options[0].textContent = `— browse ${total} kits —`;
+})();
 kitsel.onchange = () => {
   if (kitsel.value === "") return;
-  raw = Uint8Array.from(atob(KITS_FLAT[+kitsel.value]), c => c.charCodeAt(0));
+  raw = new Uint8Array(KIT_BYTES[+kitsel.value]);  // copy: edits stay local
   refreshFromRaw();
   $("sendall").click();  // straight onto the device: pick = hear
   kitsel.blur();  // hand the keyboard straight back to the trigger keys

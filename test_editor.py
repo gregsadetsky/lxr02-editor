@@ -2,14 +2,38 @@
 
 run from sonicgarbagehw/:  uv run --with playwright --with pytest pytest ../lxr-editor/test_editor.py
 (first time: uv run --with playwright playwright install chromium)
+builds are what ship: run `npm run build` first — tests serve dist/ over http.
 """
 
+import functools
+import http.server
+import socketserver
+import threading
 from pathlib import Path
 
 import pytest
 from playwright.sync_api import sync_playwright
 
-URL = f"file://{Path(__file__).parent / 'dist' / 'index.html'}"  # test the BUILD
+DIST = Path(__file__).parent / "dist"
+
+
+@pytest.fixture(scope="module")
+def URL():
+    handler = functools.partial(
+        http.server.SimpleHTTPRequestHandler, directory=str(DIST)
+    )
+    socketserver.TCPServer.allow_reuse_address = True
+    httpd = socketserver.TCPServer(("127.0.0.1", 0), handler)
+    port = httpd.server_address[1]
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{port}/"
+    httpd.shutdown()
+
+
+def wait_ready(pg):  # the kit browser fills async after fetching the .SNDs
+    pg.wait_for_function(
+        "document.getElementById('kitsel').options.length > 5", timeout=10000
+    )
 
 
 @pytest.fixture(scope="module")
@@ -21,13 +45,14 @@ def browser():
 
 
 @pytest.fixture(scope="module")
-def page(browser):
+def page(browser, URL):
     pg = browser.new_page()
     errors = []
     pg.on("pageerror", lambda e: errors.append(str(e)))
     pg.goto(URL)
-    pg.wait_for_timeout(300)
+    wait_ready(pg)
     pg._errors = errors
+    pg._url = URL
     yield pg
 
 
@@ -102,7 +127,7 @@ def test_kit_select_releases_keyboard_focus(page):
 
 def test_waveform_stepper_rotates_and_sends(page):
     page.reload()
-    page.wait_for_timeout(300)
+    wait_ready(page)
     sent = page.evaluate("""() => {
         window._cclog = [];
         const row = document.querySelector('span.wfname[data-cc="2"]').closest('.prm');
@@ -151,7 +176,7 @@ def test_pwm_is_an_nrpn_control(page):
 
 def test_wf_mod_stepper_lives_in_the_fm_section(page):
     page.reload()
-    page.wait_for_timeout(300)
+    wait_ready(page)
     name = page.evaluate(
         "() => document.querySelector('span.wfname[data-cc=\"21\"]').textContent"
     )
@@ -166,13 +191,13 @@ def test_wf_mod_stepper_lives_in_the_fm_section(page):
 
 def test_no_fingerprint_ui_remains(page):
     page.reload()
-    page.wait_for_timeout(300)
+    wait_ready(page)
     assert page.evaluate("() => document.getElementById('fp1')") is None
     foot = page.eval_on_selector('.foot', 'el => el.textContent')
     assert 'fingerprint' not in foot and 'keys:' not in foot
 
 
-def test_no_webmidi_browser_gets_banner_not_dead_page(browser):
+def test_no_webmidi_browser_gets_banner_not_dead_page(browser, URL):
     """safari repro: no requestMIDIAccess must mean a visible warning AND a
     fully rendered ui — never a silent dead page."""
     ctx = browser.new_context()
@@ -182,7 +207,7 @@ def test_no_webmidi_browser_gets_banner_not_dead_page(browser):
     errors = []
     pg.on("pageerror", lambda e: errors.append(str(e)))
     pg.goto(URL)
-    pg.wait_for_timeout(300)
+    pg.wait_for_timeout(500)
     assert errors == []
     body = pg.eval_on_selector("body", "el => el.textContent")
     assert "no web midi" in body  # the banner
@@ -194,7 +219,7 @@ def test_no_webmidi_browser_gets_banner_not_dead_page(browser):
 def test_waveforms_fill_from_kit_files(page):
     """the user was right: the osc shape IS in the .snd — and now it loads."""
     page.reload()
-    page.wait_for_timeout(300)
+    wait_ready(page)
     names = page.evaluate("""() => {
         const sel = document.getElementById('kitsel');
         const seen = new Set();
@@ -228,7 +253,7 @@ def test_pwm_fills_from_kit_file(page):
 
 def test_transient_and_filter_nrpns_exist_and_fill(page):
     page.reload()
-    page.wait_for_timeout(300)
+    wait_ready(page)
     page.select_option("#kitsel", "0")
     page.wait_for_timeout(300)
     n = page.evaluate("() => document.querySelectorAll('[data-nrpn]').length")
@@ -242,7 +267,7 @@ def test_transient_and_filter_nrpns_exist_and_fill(page):
 
 def test_filter_type_is_a_named_stepper(page):
     page.reload()
-    page.wait_for_timeout(300)
+    wait_ready(page)
     page.select_option("#kitsel", "0")
     page.wait_for_timeout(300)
     name = page.evaluate(
@@ -253,7 +278,7 @@ def test_filter_type_is_a_named_stepper(page):
 
 def test_kit_browser_is_grouped_by_pack(page):
     page.reload()
-    page.wait_for_timeout(300)
+    wait_ready(page)
     groups = page.evaluate(
         "() => [...document.querySelectorAll('#kitsel optgroup')].map(g => g.label)"
     )
