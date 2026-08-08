@@ -16,6 +16,7 @@
   input[type=number] { width:8ch; padding:5px 6px; text-align:center; cursor:text; }
   #status { color:var(--dim); }
   #status.ok { color:var(--ok); }
+  #status.err { color:#e55; }
   .trigs { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
   .trigs .grp { display:flex; flex-direction:column; gap:3px; align-items:center; }
   .trigs button { min-width:74px; text-align:center; padding:7px 10px; }

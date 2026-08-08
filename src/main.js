@@ -108,6 +108,7 @@ function trig(note, ch) {
 // ---- midi ------------------------------------------------------------------
 if (!navigator.requestMIDIAccess) {
   $("status").textContent = "midi: not supported in this browser";
+  $("status").className = "err";
   const warn = document.createElement("div");
   warn.style.cssText = "background:#3a1f14;border:1px solid #e84;border-radius:8px;" +
     "padding:10px 14px;margin-bottom:12px;color:#fca";
@@ -134,13 +135,14 @@ navigator.requestMIDIAccess && navigator.requestMIDIAccess().then(m => {
     out = sel.value ? midi.outputs.get(sel.value) || null : null;
     $("status").textContent = out ? "midi: " + out.name
       : midi.outputs.size ? "midi: pick your output →" : "midi: no outputs";
-    $("status").className = out ? "ok" : "";
+    $("status").className = out ? "ok" : midi.outputs.size ? "" : "err";
   };
   sel.onchange = () => { pick(); sel.blur(); };  // give keys back to triggers
   midi.onstatechange = fill;
   fill();
 }).catch(() => {
   $("status").textContent = "midi: blocked — allow midi access + reload";
+  $("status").className = "err";
 });
 
 // ---- ui build --------------------------------------------------------------
