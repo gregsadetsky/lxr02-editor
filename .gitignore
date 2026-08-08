@@ -146,3 +146,4 @@ vite.config.ts.timestamp-*
 dist/
 __pycache__/
 *.pyc
+.pytest_cache/
