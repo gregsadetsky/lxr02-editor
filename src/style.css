@@ -12,6 +12,7 @@
   button:hover { border-color:var(--hot); }
   button:active { background:#242424; }
   input[type=text] { width:9ch; text-transform:uppercase; }
+  #kitname { width:14ch; }
   input[type=number] { width:8ch; padding:5px 6px; text-align:center; cursor:text; }
   #status { color:var(--dim); }
   #status.ok { color:var(--ok); }
