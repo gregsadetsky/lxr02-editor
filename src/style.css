@@ -41,6 +41,8 @@
   .wfstep button { padding:0 8px; line-height:16px; }
   .wfname { min-width:4ch; text-align:center; color:var(--hot); }
   .prm .val { text-align:right; color:var(--dim); }
+  .prm .dstname { grid-column:2; font-size:10px; color:var(--dim);
+    line-height:10px; min-height:10px; margin-top:-4px; }
   .envg { width:100%; height:44px; margin:2px 0 4px; }
   .foot { margin-top:16px; color:var(--dim); font-size:12px; max-width:70ch; }
   kbd { background:#222; border:1px solid var(--line); border-radius:3px; padding:0 4px; }

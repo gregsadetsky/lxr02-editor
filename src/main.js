@@ -223,7 +223,6 @@ for (const v of VOICES) {
   box.className = "voice";
   box.innerHTML = `<h2>${VOICE_LABEL[v]}</h2>`;
   const addNrpn = ({ label, n, max, names, dst }) => {
-    const fmt = v => dst ? v + (DST_NAMES[v] ? " " + DST_NAMES[v] : "") : v;
     const row = document.createElement("div");
     row.className = "prm";
     if (names) {  // stepper with device names (like waveforms)
@@ -249,12 +248,19 @@ for (const v of VOICES) {
         <input type="range" min="0" max="${max}" value="0" data-nrpn="${n}">
         <span class="val">0</span>`;
       const inp = row.querySelector("input"), val = row.querySelector(".val");
-      inp.oninput = () => { val.textContent = fmt(+inp.value);
+      let show = null;
+      if (dst) {  // resolved param name on its own small line under the slider
+        const nameEl = document.createElement("div");
+        nameEl.className = "dstname";
+        row.appendChild(nameEl);
+        show = v => { val.textContent = v; nameEl.textContent = DST_NAMES[v] ?? ""; };
+      }
+      inp.oninput = () => { show ? show(+inp.value) : val.textContent = inp.value;
         // nrpn data entry is 7-bit: values past 127 (dst enums go there in
         // real kit files) stay file-only, the device can't be told about them
         if (+inp.value <= 127) sendNRPN(n, +inp.value);
         raw[NRPN_OFF(n)] = +inp.value; };
-      nrpnSliders[n] = { input: inp, valEl: val, fmt: dst ? fmt : null };
+      nrpnSliders[n] = { input: inp, valEl: val, show };
     }
     box.appendChild(row);
   };
@@ -395,9 +401,8 @@ function refreshFromRaw() {
     // observed maxes) — a clamped slider would rewrite the byte on save
     if (s.input.max !== "" && raw[off] > +s.input.max) s.input.max = raw[off];
     s.input.value = raw[off];
-    s.valEl.textContent = s.names
-      ? (s.names[raw[off]] ?? raw[off])
-      : s.fmt ? s.fmt(raw[off]) : raw[off];
+    if (s.show) s.show(raw[off]);
+    else s.valEl.textContent = s.names ? (s.names[raw[off]] ?? raw[off]) : raw[off];
   }
   drawAllEnvs();
 }

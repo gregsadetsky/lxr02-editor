@@ -314,18 +314,20 @@ def test_dst_sliders_show_param_names(page):
     wait_ready(page)
     shown = page.evaluate("""() => {
         const inp = document.querySelector('input[data-nrpn="39"]');
+        const row = inp.closest('.prm');
         const out = [];
         for (const v of [0, 1, 5, 40, 200]) {
             inp.value = v; inp.dispatchEvent(new Event('input'));
-            out.push(inp.closest('.prm').querySelector('.val').textContent);
+            out.push([row.querySelector('.val').textContent,
+                      row.querySelector('.dstname').textContent]);
         }
         return out;
     }""")
-    assert shown[0] == "0 off"
-    assert shown[1] == "1 v1 osc1 wf"   # cc2's param
-    assert shown[2] == "5 off"          # the cc6 data-entry hole
-    assert shown[3] == "40 sn flt frq"  # cc41's param
-    assert shown[4] == "200"            # past the cc range: no name known
+    assert shown[0] == ["0", "off"]
+    assert shown[1] == ["1", "v1 osc1 wf"]   # cc2's param
+    assert shown[2] == ["5", "off"]          # the cc6 data-entry hole
+    assert shown[3] == ["40", "sn flt frq"]  # cc41's param
+    assert shown[4] == ["200", ""]           # past the cc range: no name
 
 
 def test_filter_type_is_a_named_stepper(page):
