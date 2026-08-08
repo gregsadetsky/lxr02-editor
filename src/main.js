@@ -62,6 +62,9 @@ const FILTER_TYPES = ["lp","hp","bp","ubp","nch","pek","lp2","off"];  // device 
 // lfo waveforms, read off the device by slider sweep 2026-08-08 (the
 // manual doesn't list them anywhere)
 const LFO_WAVES = ["sin","tri","sup","sdn","sqr","rnd","xup","xdn"];
+// lfo sync: off = free-running, then clock divisions (device sweep)
+const LFO_SYNCS = ["off","4/1","2/1","1/1","1/2","1/3","1/4","1/6","1/8",
+                   "12","16","32"];
 // dst menus (lfo/velocity) walk the internal parameter table, which is
 // the cc map shifted by one: menu index n = (cc n+1)'s param. verified
 // 2026-08-08 by 28 consecutive device-screen readings (incl. the cc6
@@ -213,7 +216,7 @@ function voicePages(v) {
   // device lfo page: frq snc mod wav rtg ofs voi dst ("mod" = LFO AMT cc).
   // maxes for snc/wav/rtg/voi are the ranges observed across all 216 kits
   const lfo = [...byName("LFO FRQ")];
-  if (i !== undefined) lfo.push({ label: "snc", n: 51 + i, max: 11 });
+  if (i !== undefined) lfo.push({ label: "snc", n: 51 + i, names: LFO_SYNCS });
   lfo.push(...byName("LFO AMT"));
   if (i !== undefined)
     lfo.push({ label: "wav", n: 27 + i, names: LFO_WAVES },

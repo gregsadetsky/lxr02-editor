@@ -102,7 +102,10 @@ number).
 - sin tri sup sdn sqr rnd xup xdn. now a named stepper in the editor.
   not documented in the manual at all
 
-### c4. lfo snc names (values 0-11) — sweep, write all 12
+### c4. lfo snc names — DONE (sweep 2026-08-08)
+- off 4/1 2/1 1/1 1/2 1/3 1/4 1/6 1/8 12 16 32. named stepper in editor.
+- open detail: do the last three literally read "12 16 32" on screen, or
+  "1/12 1/16 1/32"? editor currently shows them exactly as reported
 ### c5. lfo rtg names (values 0-6) — sweep, write all 7
 ### c6. lfo voi display (1-6) — voice names or numbers?
 ### c7. mix out routing names (values 0-6)
