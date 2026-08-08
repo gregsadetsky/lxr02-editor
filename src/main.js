@@ -24,12 +24,12 @@ const CCS = [
 [62,"HH","amp env","OH DEC"],[63,"V1","amp env","VOL SLP"],[64,"V2","amp env","VOL SLP"],
 [65,"V3","amp env","VOL SLP"],[66,"SN","amp env","VOL SLP"],[67,"CP","amp env","VOL SLP"],
 [68,"HH","amp env","VOL SLP"],[69,"SN","amp env","EG RPT"],[70,"CP","amp env","EG RPT"],
-[71,"V1","mod env","MOD DEC"],[72,"V2","mod env","MOD DEC"],
-[73,"V3","mod env","MOD DEC"],[74,"SN","mod env","MOD DEC"],
-[75,"V1","mod env","ENV MOD AMT"],[76,"V2","mod env","ENV MOD AMT"],
-[77,"V3","mod env","ENV MOD AMT"],[78,"SN","mod env","ENV MOD AMT"],
-[79,"V1","mod env","MOD SLP"],[80,"V2","mod env","MOD SLP"],[81,"V3","mod env","MOD SLP"],
-[82,"SN","mod env","MOD SLP"],
+[71,"V1","modulation","MOD DEC"],[72,"V2","modulation","MOD DEC"],
+[73,"V3","modulation","MOD DEC"],[74,"SN","modulation","MOD DEC"],
+[75,"V1","modulation","ENV MOD AMT"],[76,"V2","modulation","ENV MOD AMT"],
+[77,"V3","modulation","ENV MOD AMT"],[78,"SN","modulation","ENV MOD AMT"],
+[79,"V1","modulation","MOD SLP"],[80,"V2","modulation","MOD SLP"],[81,"V3","modulation","MOD SLP"],
+[82,"SN","modulation","MOD SLP"],
 [83,"V1","fm","FM AMT"],[84,"V1","fm","FM FRQ"],[85,"V2","fm","FM AMT"],
 [86,"V2","fm","FM FRQ"],[87,"V3","fm","FM AMT"],[88,"V3","fm","FM FRQ"],
 [89,"V1","mix","VOL"],[90,"V2","mix","VOL"],[91,"V3","mix","VOL"],[92,"SN","mix","VOL"],
@@ -52,11 +52,11 @@ const WAVEFORMS = ["sin","tri","saw","rec","noi","pwm"];
 // (cc values 6+ make the device DISPLAY "s0.." sample names, but the knob
 // can't reach them — firmware leftovers from the original LXR's sample
 // oscillator. not real; not offered.)
-const NRPN_PWM = { V1: 100, V2: 101, V3: 102, SN: 103, CP: 104, HH: 105 };
 const VIDX = { V1: 0, V2: 1, V3: 2, SN: 3, CP: 4, HH: 5 };
-// transient generator ROM list (manual p.32): snappy, offset, then samples
-const TRANSIENTS = ["snp","off","clk","ck2","tik","kik","rim","drp","hat",
-                    "tk2","clp","ki2","sna","tom","sp2"];
+// transient ROM list as read off the DEVICE screen (manual p.32 lists 15
+// entries with different short names — the 02 firmware shows these 14)
+const TRANSIENTS = ["snp","ofs","clk","ck2","tik","kik","rim","drp","hat",
+                    "clp","kk2","snr","tom","sp2"];
 const FILTER_TYPES = ["lp","hp","bp","ubp","nch","pek","lp2","off"];  // device order
 const VOICES = ["V1","V2","V3","SN","CP","HH","ALL"];
 const VOICE_LABEL = {V1:"drum1", V2:"drum2", V3:"drum3",
@@ -72,11 +72,7 @@ const INIT_SND = "SW5pdGtpdAAAAAAAAQAEAB8/KT86Py1Afz8yPwAAAAAAAAB/PQAAAAA4f39/f3
 
 let midi = null, out = null;
 let raw = Uint8Array.from(atob(INIT_SND), c => c.charCodeAt(0)); // current .snd bytes
-// .snd layout: 8-byte name + one byte per parameter. VERIFIED offsets
-// (two-pass cc fingerprint against real device saves, 2026-08-07): every
-// cc >= 75 is stored VERBATIM at offset cc+7. lower ccs (osc/filter/env)
-// go through firmware value-shapers — the file holds transformed values,
-// so those sliders are LIVE-ONLY until the shaper curves are ported.
+// .snd layout: 8-byte name + one byte per parameter. VERIFIED 2026-08-07:
 // the whole cc block is stored VERBATIM at offset 7+cc (file byte = knob
 // value) — proven by predicting factory-kit screen values from bytes alone.
 // nrpn params live in a second block at offset 136+nrpn.
@@ -84,7 +80,6 @@ const builtinMap = {};
 for (const [cc] of CCS) builtinMap[cc] = cc + 7;
 const NRPN_OFF = n => 136 + n;
 const sndMap = builtinMap;
-let fpA = null; // pass-A learned offsets, awaiting pass B for collisions
 
 const $ = id => document.getElementById(id);
 const ccch = () => (+$("ccch").value || 10) - 1;
@@ -94,7 +89,7 @@ let sendAt = 0;  // pacing cursor: bulk sends flood the lxr's internal
 function paced(msg) {
   const t = Math.max(performance.now(), sendAt);
   out.send(msg, t);
-  sendAt = t + 2;  // 2ms per message: a full kit lands in ~0.4s
+  sendAt = t + 2;  // 2ms per message: a full kit lands in under a second
 }
 function sendCC(cc, val) {
   if (out) paced([0xB0 | ccch(), cc, val & 127]);
@@ -151,16 +146,69 @@ navigator.requestMIDIAccess && navigator.requestMIDIAccess().then(m => {
 const sliders = {}; // cc -> {input, valEl}
 const nrpnSliders = {}; // nrpn -> {input, valEl}
 const cols = $("cols");
-const SECT_ORDER = ["osc", "filter", "amp env", "mod env", "fm", "mix", "lfo"];
+
+// each voice mirrors the device's page order (walked on the real device):
+// osc, amplitude envelope, modulation, fm, click, filter, lfo, mix.
+// a row is {cc:[...]} straight from CCS, or an nrpn {label, n, max?, names?}.
+function voicePages(v) {
+  const i = VIDX[v];  // undefined for ALL/master
+  const ccs = sect => CCS.filter(c => c[1] === v && c[2] === sect).map(e => ({ cc: e }));
+  const byName = name => {
+    const e = CCS.find(c => c[1] === v && c[3] === name);
+    return e ? [{ cc: e }] : [];
+  };
+  const pages = [];
+  const osc = ccs("osc");
+  if (i !== undefined) osc.push({ label: "pwm", n: 100 + i, max: 127 });
+  if (osc.length) pages.push(["osc", osc]);
+  const amp = ccs("amp env");
+  if (amp.length) pages.push(["amp env", amp]);
+  // device modulation page: dec slp mod, then velocity dst amt vol
+  const mod = [...byName("MOD DEC"), ...byName("MOD SLP"), ...byName("ENV MOD AMT")];
+  if (i !== undefined)
+    mod.push({ label: "vel dst", n: 21 + i, max: 255 },
+             { label: "vel amt", n: 15 + i, max: 127 },
+             { label: "vel>vol", n: 9 + i, names: ["off", "on"] });
+  if (mod.length) pages.push(["modulation", mod]);
+  // device fm page: amt frq wav mod (wav = cc "WF MOD"; mod = mix/mod select)
+  const fm = [...byName("FM AMT"), ...byName("FM FRQ"), ...byName("WF MOD")];
+  if (fm.length && i !== undefined && i < 3)
+    fm.push({ label: "mod", n: 6 + i, names: ["mix", "mod"] });
+  if (fm.length) pages.push(["fm", fm]);
+  if (i !== undefined)
+    pages.push(["click", [{ label: "wav", n: 75 + i, names: TRANSIENTS },
+                          { label: "vol", n: 69 + i, max: 127 },
+                          { label: "frq", n: 81 + i, max: 127 }]]);
+  const flt = ccs("filter");
+  if (i !== undefined)
+    flt.push({ label: "typ", n: 63 + i, names: FILTER_TYPES },
+             { label: "drv", n: 0 + i, max: 127 });
+  if (flt.length) pages.push(["filter", flt]);
+  // device lfo page: frq snc mod wav rtg ofs voi dst ("mod" = LFO AMT cc).
+  // maxes for snc/wav/rtg/voi are the ranges observed across all 216 kits
+  const lfo = [...byName("LFO FRQ")];
+  if (i !== undefined) lfo.push({ label: "snc", n: 51 + i, max: 11 });
+  lfo.push(...byName("LFO AMT"));
+  if (i !== undefined)
+    lfo.push({ label: "wav", n: 27 + i, max: 7 },
+             { label: "rtg", n: 45 + i, max: 6 },
+             { label: "ofs", n: 57 + i, max: 127 },
+             { label: "voi", n: 33 + i, max: 6 },
+             { label: "dst", n: 39 + i, max: 255 });
+  if (lfo.length) pages.push(["lfo", lfo]);
+  const mix = ccs("mix");
+  if (i !== undefined) mix.push({ label: "out", n: 87 + i, max: 6 });
+  if (mix.length) pages.push(["mix", mix]);
+  return pages;
+}
+
 for (const v of VOICES) {
-  const mine = CCS.filter(c => c[1] === v)
-    .sort((a, b) => SECT_ORDER.indexOf(a[2]) - SECT_ORDER.indexOf(b[2]));
-  if (!mine.length) continue;
+  const pages = voicePages(v);
+  if (!pages.length) continue;
   const box = document.createElement("div");
   box.className = "voice";
   box.innerHTML = `<h2>${VOICE_LABEL[v]}</h2>`;
-  let sect = "";
-  const addNrpn = (label, n, max, names) => {
+  const addNrpn = ({ label, n, max, names }) => {
     const row = document.createElement("div");
     row.className = "prm";
     if (names) {  // stepper with device names (like waveforms)
@@ -186,38 +234,18 @@ for (const v of VOICES) {
         <input type="range" min="0" max="${max}" value="0" data-nrpn="${n}">
         <span class="val">0</span>`;
       const inp = row.querySelector("input"), val = row.querySelector(".val");
-      inp.oninput = () => { val.textContent = inp.value; sendNRPN(n, +inp.value);
+      inp.oninput = () => { val.textContent = inp.value;
+        // nrpn data entry is 7-bit: values past 127 (dst enums go there in
+        // real kit files) stay file-only, the device can't be told about them
+        if (+inp.value <= 127) sendNRPN(n, +inp.value);
         raw[NRPN_OFF(n)] = +inp.value; };
       nrpnSliders[n] = { input: inp, valEl: val };
     }
     box.appendChild(row);
   };
-  const addPwm = () => {
-    if (NRPN_PWM[v] !== undefined) addNrpn("pwm", NRPN_PWM[v], 127);
-  };
-  const addFilterExtras = () => {  // nrpn side of the filter (manual 9.8)
-    const i = VIDX[v];
-    if (i === undefined) return;
-    addNrpn("flt type", 63 + i, 7, FILTER_TYPES);
-    addNrpn("flt drive", 0 + i, 127);
-  };
-  const addTransient = () => {  // the attack ROM (WAV on the device)
-    const i = VIDX[v];
-    if (i === undefined) return;
-    box.insertAdjacentHTML("beforeend", `<div class="sect">transient</div>`);
-    addNrpn("sample", 75 + i, 14, TRANSIENTS);
-    addNrpn("volume", 69 + i, 127);
-    addNrpn("freq", 81 + i, 127);
-  };
-  for (const [cc, _v, s, name] of mine) {
-    if (s !== sect) {
-      if (sect === "osc") addPwm();  // close the osc section with pwm
-      if (sect === "filter") { addFilterExtras(); addTransient(); }
-      sect = s;
-      box.insertAdjacentHTML("beforeend", `<div class="sect">${s}</div>`);
-    }
+  const addCc = ([cc, _v, _s, name]) => {
     const row = document.createElement("div");
-    row.className = "prm" + (builtinMap[cc] !== undefined ? "" : " unlinked");
+    row.className = "prm";
     if (name === "OSC1 WF" || name.startsWith("WF MOD")) {
       // waveforms rotate with arrows: click through with the mouse while
       // the other hand taps a trigger key — nothing steals the keyboard
@@ -240,7 +268,7 @@ for (const v of VOICES) {
       nextB.onclick = () => step(1);
       sliders[cc] = { input: hid, valEl: nameEl, voice: _v };
       box.appendChild(row);
-      continue;
+      return;
     }
     row.innerHTML = `<label title="cc ${cc}">${name.toLowerCase()}</label>
       <input type="range" min="0" max="127" value="0" data-cc="${cc}">
@@ -251,6 +279,10 @@ for (const v of VOICES) {
       drawEnv(_v); };
     sliders[cc] = { input: inp, valEl: val, voice: _v };
     box.appendChild(row);
+  };
+  for (const [sect, rows] of pages) {
+    box.insertAdjacentHTML("beforeend", `<div class="sect">${sect}</div>`);
+    for (const r of rows) r.cc ? addCc(r.cc) : addNrpn(r);
   }
   if (["V1","V2","V3","SN","CP","HH"].includes(v)) {
     const cv = document.createElement("canvas");
@@ -317,9 +349,12 @@ document.addEventListener("keydown", e => {
 });
 
 // ---- send all ---------------------------------------------------------------
-$("sendall").onclick = () => {  // the whole kit, paced: ~0.4s
+$("sendall").onclick = () => {  // the whole kit, paced: ~0.9s
   for (const cc of Object.keys(sliders)) sendCC(+cc, +sliders[cc].input.value);
-  for (const n of Object.keys(nrpnSliders)) sendNRPN(+n, +nrpnSliders[n].input.value);
+  for (const n of Object.keys(nrpnSliders)) {
+    const val = +nrpnSliders[n].input.value;
+    if (val <= 127) sendNRPN(+n, val);  // 7-bit data entry: >127 is file-only
+  }
 };
 
 // ---- .snd load/save ---------------------------------------------------------
@@ -341,9 +376,12 @@ function refreshFromRaw() {
   for (const [n, s] of Object.entries(nrpnSliders)) {
     const off = NRPN_OFF(+n);
     if (off >= raw.length) continue;
+    // never let the input clamp a file byte (kits hold values past our
+    // observed maxes) — a clamped slider would rewrite the byte on save
+    if (s.input.max !== "" && raw[off] > +s.input.max) s.input.max = raw[off];
     s.input.value = raw[off];
     s.valEl.textContent = s.names
-      ? s.names[Math.min(raw[off], s.names.length - 1)] : raw[off];
+      ? (s.names[raw[off]] ?? raw[off]) : raw[off];
   }
   drawAllEnvs();
 }

@@ -261,8 +261,44 @@ def test_transient_and_filter_nrpns_exist_and_fill(page):
     sample = page.evaluate(
         """() => document.querySelector("span.wfname[data-nrpn='75']").textContent"""
     )
-    assert sample in ("snp", "off", "clk", "ck2", "tik", "kik", "rim", "drp",
-                      "hat", "tk2", "clp", "ki2", "sna", "tom", "sp2")
+    assert sample in ("snp", "ofs", "clk", "ck2", "tik", "kik", "rim", "drp",
+                      "hat", "clp", "kk2", "snr", "tom", "sp2")
+
+
+def test_sections_follow_device_page_order(page):
+    """drum1's sections read exactly like paging through the device."""
+    page.reload()
+    wait_ready(page)
+    sects = page.evaluate("""() => [...document.querySelectorAll(
+        '.voice')][0] ? [...document.querySelectorAll('.voice')].map(v =>
+        [...v.querySelectorAll('.sect')].map(s => s.textContent)) : []""")
+    assert sects[0] == ["osc", "amp env", "modulation", "fm", "click",
+                       "filter", "lfo", "mix"]  # drum1
+    assert sects[3] == ["osc", "amp env", "modulation", "click",
+                       "filter", "lfo", "mix"]  # snare: no fm page
+    assert sects[6] == ["mix"]  # master: all dcm only
+
+
+def test_new_nrpn_rows_fill_from_kit_and_high_values_survive(page):
+    """velocity dst/amt/vol, lfo snc/wav/rtg/ofs/voi/dst, mix out — all in
+    the file at 136+n. dst enums go past 127 in real kits: the slider must
+    hold the byte (not clamp it) so a round-trip save keeps it intact."""
+    page.reload()
+    wait_ready(page)
+    page.select_option("#kitsel", "0")
+    page.wait_for_timeout(300)
+    for n in (21, 15, 9, 51, 27, 45, 57, 33, 39, 87):  # drum1's new nrpns
+        el = page.evaluate(
+            f"""() => {{ const e = document.querySelector('[data-nrpn="{n}"]');
+                return e ? e.tagName : null; }}""")
+        assert el, f"nrpn {n} row missing"
+    ok = page.evaluate("""() => {
+        const inp = document.querySelector('input[data-nrpn="39"]');
+        // simulate a kit byte past 127 (lfo dst enums reach 226 in the corpus)
+        inp.max = 127; inp.max = Math.max(+inp.max, 226); inp.value = 226;
+        return +inp.value === 226;
+    }""")
+    assert ok
 
 
 def test_filter_type_is_a_named_stepper(page):
