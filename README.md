@@ -2,7 +2,7 @@
 
 ![lxr-02 kit editor](public/og.png)
 
-edit kits on the erica synths / sonic potions lxr-02 drum synth from
+edit kits on the Erica Synths / Sonic Potions LXR-02 drum synth from
 your browser. live at https://lxr02.greg.technology (chrome only).
 
 - every slider sends cc/nrpn to the device as you move it
