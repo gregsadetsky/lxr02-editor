@@ -22,13 +22,30 @@ screen — no file juggling needed. file checks need the SD card afterwards.
   probably only reachable as the never-touched default: once you dial
   the knob you land in 1-16 with no way back to 0)
 
-### a2. THE big one — full-map a/b test (proves every cc+nrpn in one shot)
-- editor: pick a dense kit, e.g. "zubat" (factory · proj00)
-- device: save it to an empty TMP slot (no knob touching in between!)
-- later: mount the SD card, tell claude → diff device-save vs editor bytes.
-  every matching byte = that param's mapping proven end-to-end.
-  known exception: dst values >127 can't be sent (7-bit nrpn), will differ
-- also grab 20-ZZZZZ.SND / 21-FINGB.SND off TMP while the card is mounted
+### a2. full-map a/b test — RESULT (zubtest diff, 2026-08-08)
+- 206 of 215 sent params came back BYTE-PERFECT. the cc+nrpn map is
+  verified end-to-end for everything the editor sends.
+- the 9 mismatches cluster:
+  - flt frq v1-v4 (cc 38-41), vol dec sn (cc 57), flt drive v1+sn
+    (nrpn 0, 3): hypothesis = zubat's lfos (all 6 running) and mod envs
+    write INTO their target params and save captures the modulated
+    instant. not proven yet -> a2b below decides it
+  - lfo dst (nrpn 39-44): sent 40 saved 135, sent 22 saved 93, unsent
+    v1 saved 10. unexplained. (ties into the c8 dst-table sweep)
+- unmapped-but-differing bytes, all expected: name, the cc 1/6/98 gap
+  slots (offsets 8/13/105 — hold something, unexplained), unsendable
+  >127 dst bytes, and the FX block (nrpn 106-117) which the editor has
+  NO controls for yet
+
+### a2b. modulation-writeback probe (decides the 6 suspect bytes)
+- ZUBFLAT.SND (on desktop) = zubat with all lfo amt + env mod amt zeroed
+- editor: load .snd ZUBFLAT (auto-sends), then device: save to a TMP slot
+- tell claude, card mounted → diff. if flt frq/vol dec/drive now match
+  byte-perfect, writeback confirmed and the map has ZERO real mismatches
+
+### a2c. editor fx section (found gap)
+- fx type/routing/amount/dist type/p1-p4/ratio/ringmod wav/delay type =
+  nrpn 106-117, per-kit. add as a master-column section, then re-run a2
 
 ### a3. save filename: does the device need the "NN-" prefix?
 - editor: save .snd (GARBAGE.SND), copy to a project folder on the SD
