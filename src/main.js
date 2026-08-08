@@ -82,7 +82,7 @@ const NRPN_OFF = n => 136 + n;
 const sndMap = builtinMap;
 
 const $ = id => document.getElementById(id);
-const ccch = () => (+$("ccch").value || 10) - 1;
+const ccch = () => (+$("ccch").value || 1) - 1;
 
 let sendAt = 0;  // pacing cursor: bulk sends flood the lxr's internal
 // serial link (that's what corrupted the fingerprint sessions) — space them
@@ -158,7 +158,10 @@ function voicePages(v) {
     return e ? [{ cc: e }] : [];
   };
   const pages = [];
-  const osc = ccs("osc");
+  // device osc page order: coa fin wav pwm, then the voice-specific extras
+  const oscMain = ["OSC1 CT", "OSC1 FT", "OSC1 WF"];
+  const osc = [...oscMain.flatMap(byName),
+               ...ccs("osc").filter(r => !oscMain.includes(r.cc[3]))];
   if (i !== undefined) osc.push({ label: "pwm", n: 100 + i, max: 127 });
   if (osc.length) pages.push(["osc", osc]);
   const amp = ccs("amp env");
