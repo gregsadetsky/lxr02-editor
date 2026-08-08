@@ -43,11 +43,12 @@
 - open source the repo (public — explicit decision at that moment, after
   the hrtl kit license check above; consider "open source, closed
   contribution" per the main project's policy thinking)
-- post it where the lxr-02 people already are: the gearspace lxr-02 thread,
-  modwiggler (sonic potions + erica threads), elektronauts lxr-02 thread —
-  all three have active multi-year threads (found during research). also:
-  erica synths support/forum + sonic potions forum, maybe r/synthesizers.
-  angle: "the editor the lxr-02 never had, free, in your browser"
+- post it where the lxr-02 people already are — the two concrete spots:
+  https://gearspace.com/threads/erica-synths-lxr-02.1355285/page-13
+  https://www.elektronauts.com/t/erica-synths-lxr-02-desktop-digital-drum-synthesizer/156287/61?page=48
+  (also possible later: modwiggler, erica/sonic potions forums,
+  r/synthesizers). angle: "the editor the lxr-02 never had, free, in
+  your browser"
 
 ## known truths (hard-won, do not relearn)
 - .SND = 8-byte name + 247 param bytes. TWO blocks: cc params VERBATIM at
