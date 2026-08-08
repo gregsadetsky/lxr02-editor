@@ -132,11 +132,18 @@ navigator.requestMIDIAccess && navigator.requestMIDIAccess().then(m => {
   midi = m;
   const sel = $("outsel");
   const fill = () => {
+    // statechange fires not just on plug/unplug but ALSO when the first
+    // send() implicitly opens the port — the rebuild must preserve the
+    // user's pick or the first slider touch "unselects" the instrument
+    const chosen = sel.value;
+    const stillThere = chosen &&
+      [...midi.outputs.values()].some(o => o.id === chosen);
     sel.innerHTML = "<option value=''>— pick midi output —</option>";
     for (const o of midi.outputs.values()) {
       const opt = document.createElement("option");
       opt.value = o.id; opt.textContent = o.name;
-      if (/lxr/i.test(o.name)) opt.selected = true;  // only the LXR auto-picks
+      if (stillThere ? o.id === chosen : /lxr/i.test(o.name))
+        opt.selected = true;  // keep the pick; only the LXR auto-picks fresh
       sel.appendChild(opt);
     }
     pick();

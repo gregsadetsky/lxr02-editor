@@ -375,3 +375,33 @@ def test_page_is_locked_until_midi(page):
     assert state["trigs"] < 0.5
     assert state["connectbar"] != "none"  # picking an output must stay possible
     page.evaluate("document.body.classList.remove('nomidi')")  # for later tests
+
+
+def test_statechange_never_steals_the_picked_output(browser, URL):
+    """chrome fires statechange when the FIRST send() opens the port — the
+    dropdown rebuild must keep the user's pick (real bug: touching any
+    slider right after picking a non-lxr output unselected the midi)."""
+    pg = browser.new_page()
+    pg.add_init_script("""
+        const outs = new Map([
+            ["a", { id: "a", name: "IAC Bus 1", send: () => {} }],
+            ["b", { id: "b", name: "LXR-02", send: () => {} }],
+        ]);
+        window._fakemidi = { outputs: outs, onstatechange: null };
+        navigator.requestMIDIAccess = () => Promise.resolve(window._fakemidi);
+    """)
+    pg.goto(URL)
+    pg.wait_for_function(
+        "document.getElementById('kitsel').options.length > 5", timeout=10000
+    )
+    # the lxr auto-picked on load; the user deliberately picks the OTHER port
+    pg.select_option("#outsel", "a")
+    assert "IAC" in pg.text_content("#status")
+    # first send opens the port -> chrome fires statechange -> fill() reruns
+    pg.evaluate("window._fakemidi.onstatechange()")
+    assert pg.evaluate("document.getElementById('outsel').value") == "a"
+    assert "IAC" in pg.text_content("#status")  # the pick SURVIVED
+    # and a genuine unplug of the picked port falls back to the lxr
+    pg.evaluate("window._fakemidi.outputs.delete('a'); window._fakemidi.onstatechange()")
+    assert pg.evaluate("document.getElementById('outsel').value") == "b"
+    pg.close()
