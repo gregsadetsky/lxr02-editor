@@ -35,19 +35,20 @@ const CCS = [
 [89,"V1","mix","VOL"],[90,"V2","mix","VOL"],[91,"V3","mix","VOL"],[92,"SN","mix","VOL"],
 [93,"CP","mix","VOL"],[94,"HH","mix","VOL"],[95,"V1","mix","PAN"],[96,"V2","mix","PAN"],
 [97,"V3","mix","PAN"],[100,"SN","mix","PAN"],[101,"CP","mix","PAN"],[102,"HH","mix","PAN"],
-[103,"V1","mix","DIST"],[104,"V2","mix","DIST"],[105,"V3","mix","DIST"],
-[106,"SN","mix","DIST"],[107,"CP","mix","DIST"],[108,"HH","mix","DIST"],
-[109,"V1","mix","DCM"],[110,"V2","mix","DCM"],[111,"V3","mix","DCM"],
-[112,"SN","mix","DCM"],[113,"CP","mix","DCM"],[114,"HH","mix","DCM"],
-[115,"ALL","mix","ALL DCM"],
+[109,"V1","mix","SRT"],[110,"V2","mix","SRT"],[111,"V3","mix","SRT"],
+[112,"SN","mix","SRT"],[113,"CP","mix","SRT"],[114,"HH","mix","SRT"],
+[103,"V1","mix","DRV"],[104,"V2","mix","DRV"],[105,"V3","mix","DRV"],
+[106,"SN","mix","DRV"],[107,"CP","mix","DRV"],[108,"HH","mix","DRV"],
+[115,"ALL","mix","ALL SRT"],
 [116,"V1","lfo","LFO FRQ"],[117,"V2","lfo","LFO FRQ"],[118,"V3","lfo","LFO FRQ"],
 [119,"SN","lfo","LFO FRQ"],[120,"CP","lfo","LFO FRQ"],[121,"HH","lfo","LFO FRQ"],
 [122,"V1","lfo","LFO AMT"],[123,"V2","lfo","LFO AMT"],[124,"V3","lfo","LFO AMT"],
 [125,"SN","lfo","LFO AMT"],[126,"CP","lfo","LFO AMT"],[127,"HH","lfo","LFO AMT"],
 ];
-// device display scales: coarse tune reads -60..+67, fine and pan -63..+64
+// device display scales: coarse tune AND fm frq read -60..+67,
+// fine and pan -63..+64
 const disp = (name, v) =>
-  name.endsWith(" CT") ? v - 60
+  name.endsWith(" CT") || name === "FM FRQ" ? v - 60
   : name.endsWith(" FT") || name === "PAN" ? v - 63 : v;
 const WAVEFORMS = ["sin","tri","saw","rec","noi","pwm"];
 // (cc values 6+ make the device DISPLAY "s0.." sample names, but the knob

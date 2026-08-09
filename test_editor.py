@@ -169,6 +169,12 @@ def test_tune_display_uses_device_scale(page):
         return el.closest('.prm').querySelector('.val').textContent;
     }""")
     assert pan == "64"  # pan is -63..+64 on the device (user-verified)
+    fmfrq = page.evaluate("""() => {
+        const el = document.querySelector('input[data-cc="84"]');
+        el.value = 60; el.dispatchEvent(new Event('input'));
+        return el.closest('.prm').querySelector('.val').textContent;
+    }""")
+    assert fmfrq == "0"  # fm frq reads -60..+67 like coarse (user-verified)
 
 
 def test_pwm_is_an_nrpn_control(page):
@@ -285,7 +291,7 @@ def test_sections_follow_device_page_order(page):
                        "filter", "lfo", "mix"]  # drum1
     assert sects[3] == ["osc", "amp env", "modulation", "click",
                        "filter", "lfo", "mix"]  # snare: no fm page
-    assert sects[6] == ["mix"]  # master: all dcm only
+    assert sects[6] == ["mix"]  # master: all srt only
 
 
 def test_new_nrpn_rows_fill_from_kit_and_high_values_survive(page):

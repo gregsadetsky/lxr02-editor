@@ -68,6 +68,9 @@ bottom per voice. the screen is truth; note EVERY mismatch (order, name,
 number).
 
 ### b1. drum1: all 8 pages vs the editor column (baseline walk)
+- 2026-08-09 partial result: mix page is vol pan srt drv — manual's
+  "distortion" (cc 103-108) displays as DRV, "decimation" (cc 109-114)
+  displays as SRT, and srt comes BEFORE drv. editor fixed
 ### b2. snare osc page: where do nse frq / mix osc nse sit? is pwm shown?
 ### b3. clp/cym + hh osc pages: order of wf mod o1/o2, ct mod o1/o2,
        gain mod o1/o2 vs the editor
@@ -76,8 +79,9 @@ number).
 ### b6. clp/cym + hh modulation page: really just dst amt vol?
        (they have no mod envelope ccs)
 ### b7. signed/scaled displays — compare NUMBERS, not just order:
-- pan: DONE — device shows -63..+64, editor now matches
-- lfo frq, fm frq, click frq: scaled or verbatim?
+- pan: DONE — device shows -63..+64, editor matches
+- fm frq: DONE — -60..+67 like coarse tune (2026-08-09), editor matches
+- lfo frq, click frq: scaled or verbatim? still unchecked
 - vol slp / mod slp: verbatim? (63 = linear per the manual)
 - anything else where device shows negative or unit-ish numbers
 
