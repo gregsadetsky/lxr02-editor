@@ -42,8 +42,8 @@ const CCS = [
 [115,"ALL","mix","ALL SRT"],
 [116,"V1","lfo","LFO FRQ"],[117,"V2","lfo","LFO FRQ"],[118,"V3","lfo","LFO FRQ"],
 [119,"SN","lfo","LFO FRQ"],[120,"CP","lfo","LFO FRQ"],[121,"CH","lfo","LFO FRQ"],
-[122,"V1","lfo","LFO AMT"],[123,"V2","lfo","LFO AMT"],[124,"V3","lfo","LFO AMT"],
-[125,"SN","lfo","LFO AMT"],[126,"CP","lfo","LFO AMT"],[127,"CH","lfo","LFO AMT"],
+[122,"V1","lfo","MOD"],[123,"V2","lfo","MOD"],[124,"V3","lfo","MOD"],
+[125,"SN","lfo","MOD"],[126,"CP","lfo","MOD"],[127,"CH","lfo","MOD"],
 ];
 // device display scales: coarse tune AND fm frq read -60..+67,
 // fine and pan -63..+64
@@ -249,7 +249,7 @@ function voicePages(v) {
   // maxes for snc/wav/rtg/voi are the ranges observed across all 216 kits
   const lfo = [...byName("LFO FRQ")];
   if (i !== undefined) lfo.push({ label: "snc", n: 51 + i, names: LFO_SYNCS });
-  lfo.push(...byName("LFO AMT"));
+  lfo.push(...byName("MOD"));
   if (i !== undefined)
     lfo.push({ label: "wav", n: 27 + i, names: LFO_WAVES },
              { label: "rtg", n: 45 + i, names: LFO_RTGS },
