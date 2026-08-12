@@ -159,8 +159,26 @@ number).
 - device: save the same kit twice, changing only mix-page ch (say 3 → 7)
   between saves, two different TMP slots
 - tell claude → diff locates the byte, or proves they're not in the file
-### d3. dst values past 127: file-only for now. is there any way to dial
-  them over midi? (low priority — knob-on-device works regardless)
+### d3. dst FILE-byte calibration (the third-numbering mystery)
+- what we know: the dst byte in .SND files is neither the menu position
+  nor the sent global id — zubat sends put id 40 into drum2's lfo dst
+  and the device SAVED 135; id 22 into clp's saved 93 (both reproduced
+  twice). applies to (at least) lfo dst; vel dst presumably same
+- THE TEST (device + one card mount, ~10 saves):
+  1. pick drum1. set its LFO dst on the DEVICE KNOB to a known entry
+     (start: off). ALSO set cl hh's VEL dst to a known entry (off)
+  2. save to a TMP slot. name the save after the settings (eg OF-OF)
+  3. repeat, stepping both dsts one menu entry per save: coa/coa,
+     fin/fin, wav/wav, pwm/pwm ... ~8-10 saves, WRITE DOWN the pair of
+     names for each save
+  4. mount the card, tell claude: each consecutive diff isolates the two
+     dst bytes -> name->file-byte pairs for two voices at once. with
+     8+ pairs either the mapping reproduces (rule: must predict 3+
+     unseen values) or it stays honestly unexplained
+- bonus from the same saves: pwm/click entries give the file ids of
+  NRPN-backed params (>127 territory), mapping the table's tail
+### d4. dst values past 127 over midi: probably impossible (7-bit data
+  entry) — confirmed unreachable unless a 14-bit CC6+CC38 path exists
 
 ## already verified — do not re-check
 - cc block verbatim at 7+cc, nrpn at 136+n (zubat/jurapark blind predict)
