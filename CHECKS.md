@@ -72,8 +72,17 @@ number).
   "distortion" (cc 103-108) displays as DRV, "decimation" (cc 109-114)
   displays as SRT, and srt comes BEFORE drv. editor fixed
 ### b2. snare osc page: where do nse frq / mix osc nse sit? is pwm shown?
-### b3. clp/cym + hh osc pages: order of wf mod o1/o2, ct mod o1/o2,
-       gain mod o1/o2 vs the editor
+### b3. hats: DONE (2026-08-09) — clp/cym still to confirm
+- hats are TWO voices on the device: editor now has separate cl hh and
+  op hh lanes. osc pane = coa fin wav; pwm on CL HH ONLY. decays are
+  named d1 (cl, cc61) and d2 (op, cc62)
+- hats fm pane = f1 f2 g1 g2 wav wav (f1/f2 = ct mods, -60..+67;
+  g1/g2 = gain mods 0-127; wavs = sin tri saw rec noi pwm). the o1/o2
+  mod params were never on the osc pane — editor moved them to fm
+- editor keeps the SHARED engine params on the cl hh lane (op hh lane =
+  d2 only) — the device shows them on both hats but they're one cc
+- clp/cym: editor assumes the same fm pane (f1 f2 g1 g2 wav wav) —
+  CONFIRM on the device, plus where eg rpt sits on its amp pane
 ### b4. hh amp env: atk, ch dec, oh dec, slp — this order?
 ### b5. snare/clp amp env: where does rpt (eg repeat) appear?
 ### b6. clp/cym + hh modulation page: really just dst amt vol?
@@ -117,7 +126,19 @@ number).
 - st1 st2 l1 r1 l2 r2 fx. named stepper in editor. (so lambo routes
   drum1 to st1, faders to the fx bus)
 
-### c8. dst name table — CRACKED (28-value sweep, 2026-08-08)
+### c8b. vel dst is a PER-VOICE menu (2026-08-09) — not the global table
+- the modulation pane's dst lists THE VOICE'S OWN params in pane order.
+  cl hh enumerated complete: off coa fin wav pwm atk d1 d2 slp dst amt
+  vol f1 f2 g1 g2 wav vol frq [frq?] res typ drv frq snc mod wav rtg ofs
+  vol pan srt drv p1 p2 p3 p4. drum1's head+tail match (2026-08-08 note)
+- OPEN AMBIGUITY: click-frq and filter-frq should be back to back (both
+  panes contribute one) but the reading shows a single frq. spot-check:
+  sweep cl hh vel dst around there — one frq or two?
+- editor: vel dst sliders show per-voice names (drums + cl hh; snare and
+  clp/cym show numbers until their menus are walked). lfo dst keeps the
+  global table names
+
+### c8. lfo dst name table — CRACKED (28-value sweep, 2026-08-08)
 - dst menu index n = internal param enum n = (cc n+1)'s parameter for the
   whole cc range. verified 28/28 consecutive readings incl. the cc6 hole
   showing "off". the editor now displays resolved names on dst sliders

@@ -92,7 +92,7 @@ def test_nothing_is_marked_unlinked_anymore(page):
 
 def test_envelope_canvases_exist_and_draw(page):
     n = page.evaluate("() => document.querySelectorAll('canvas.envg').length")
-    assert n == 6  # one per voice engine
+    assert n == 7  # one per voice lane (hats are two lanes)
     blank = page.evaluate(
         """() => { const c = document.querySelector('canvas.envg');
              return c.getContext('2d').getImageData(0,0,c.width,c.height)
@@ -291,7 +291,12 @@ def test_sections_follow_device_page_order(page):
                        "filter", "lfo", "mix"]  # drum1
     assert sects[3] == ["osc", "amp env", "modulation", "click",
                        "filter", "lfo", "mix"]  # snare: no fm page
-    assert sects[6] == ["mix"]  # master: all srt only
+    assert sects[4] == ["osc", "amp env", "modulation", "fm", "click",
+                       "filter", "lfo", "mix"]  # clp/cym: o1/o2 mods in fm
+    assert sects[5] == ["osc", "amp env", "modulation", "fm", "click",
+                       "filter", "lfo", "mix"]  # cl hh owns the engine
+    assert sects[6] == ["amp env"]  # op hh: just d2 (shares the engine)
+    assert sects[7] == ["mix"]  # master: all srt only
 
 
 def test_new_nrpn_rows_fill_from_kit_and_high_values_survive(page):

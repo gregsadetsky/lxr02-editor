@@ -2,28 +2,28 @@
 // ---- the cc map (midi.guide lxr-02, ~117 ccs) -------------------------------
 const CCS = [
 [2,"V1","osc","OSC1 WF"],[3,"V2","osc","OSC1 WF"],[4,"V3","osc","OSC1 WF"],
-[5,"SN","osc","OSC1 WF"],[7,"CP","osc","OSC1 WF"],[8,"HH","osc","OSC1 WF"],
+[5,"SN","osc","OSC1 WF"],[7,"CP","osc","OSC1 WF"],[8,"CH","osc","OSC1 WF"],
 [9,"V1","osc","OSC1 CT"],[10,"V1","osc","OSC1 FT"],[11,"V2","osc","OSC1 CT"],
 [12,"V2","osc","OSC1 FT"],[13,"V3","osc","OSC1 CT"],[14,"V3","osc","OSC1 FT"],
 [15,"SN","osc","OSC1 CT"],[16,"SN","osc","OSC1 FT"],[17,"CP","osc","OSC1 CT"],
-[18,"CP","osc","OSC1 FT"],[19,"HH","osc","OSC1 CT"],[20,"HH","osc","OSC1 FT"],
+[18,"CP","osc","OSC1 FT"],[19,"CH","osc","OSC1 CT"],[20,"CH","osc","OSC1 FT"],
 [21,"V1","fm","WF MOD"],[22,"V2","fm","WF MOD"],[23,"V3","fm","WF MOD"],
-[24,"CP","osc","WF MOD O1"],[25,"CP","osc","WF MOD O2"],[26,"HH","osc","WF MOD O1"],
-[27,"HH","osc","WF MOD O2"],[28,"SN","osc","NSE FRQ"],[29,"SN","osc","MIX OSC NSE"],
-[30,"CP","osc","CT MOD O1"],[31,"CP","osc","CT MOD O2"],[32,"CP","osc","GAIN MOD O1"],
-[33,"CP","osc","GAIN MOD O2"],[34,"HH","osc","CT MOD O1"],[35,"HH","osc","CT MOD O2"],
-[36,"HH","osc","GAIN MOD O1"],[37,"HH","osc","GAIN MOD O2"],
+[28,"SN","osc","NSE FRQ"],[29,"SN","osc","MIX OSC NSE"],
+[30,"CP","fm","F1"],[31,"CP","fm","F2"],[32,"CP","fm","G1"],[33,"CP","fm","G2"],
+[24,"CP","fm","WAV O1"],[25,"CP","fm","WAV O2"],
+[34,"CH","fm","F1"],[35,"CH","fm","F2"],[36,"CH","fm","G1"],[37,"CH","fm","G2"],
+[26,"CH","fm","WAV O1"],[27,"CH","fm","WAV O2"],
 [38,"V1","filter","FLT FRQ"],[39,"V2","filter","FLT FRQ"],[40,"V3","filter","FLT FRQ"],
-[41,"SN","filter","FLT FRQ"],[42,"CP","filter","FLT FRQ"],[43,"HH","filter","FLT FRQ"],
+[41,"SN","filter","FLT FRQ"],[42,"CP","filter","FLT FRQ"],[43,"CH","filter","FLT FRQ"],
 [44,"V1","filter","FLT RES"],[45,"V2","filter","FLT RES"],[46,"V3","filter","FLT RES"],
-[47,"SN","filter","FLT RES"],[48,"CP","filter","FLT RES"],[49,"HH","filter","FLT RES"],
+[47,"SN","filter","FLT RES"],[48,"CP","filter","FLT RES"],[49,"CH","filter","FLT RES"],
 [50,"V1","amp env","VOL ATK"],[51,"V1","amp env","VOL DEC"],[52,"V2","amp env","VOL ATK"],
 [53,"V2","amp env","VOL DEC"],[54,"V3","amp env","VOL ATK"],[55,"V3","amp env","VOL DEC"],
 [56,"SN","amp env","VOL ATK"],[57,"SN","amp env","VOL DEC"],[58,"CP","amp env","VOL ATK"],
-[59,"CP","amp env","VOL DEC"],[60,"HH","amp env","VOL ATK"],[61,"HH","amp env","CH DEC"],
-[62,"HH","amp env","OH DEC"],[63,"V1","amp env","VOL SLP"],[64,"V2","amp env","VOL SLP"],
+[59,"CP","amp env","VOL DEC"],[60,"CH","amp env","VOL ATK"],[61,"CH","amp env","D1"],
+[62,"OH","amp env","D2"],[63,"V1","amp env","VOL SLP"],[64,"V2","amp env","VOL SLP"],
 [65,"V3","amp env","VOL SLP"],[66,"SN","amp env","VOL SLP"],[67,"CP","amp env","VOL SLP"],
-[68,"HH","amp env","VOL SLP"],[69,"SN","amp env","EG RPT"],[70,"CP","amp env","EG RPT"],
+[68,"CH","amp env","VOL SLP"],[69,"SN","amp env","EG RPT"],[70,"CP","amp env","EG RPT"],
 [71,"V1","modulation","MOD DEC"],[72,"V2","modulation","MOD DEC"],
 [73,"V3","modulation","MOD DEC"],[74,"SN","modulation","MOD DEC"],
 [75,"V1","modulation","ENV MOD AMT"],[76,"V2","modulation","ENV MOD AMT"],
@@ -33,28 +33,29 @@ const CCS = [
 [83,"V1","fm","FM AMT"],[84,"V1","fm","FM FRQ"],[85,"V2","fm","FM AMT"],
 [86,"V2","fm","FM FRQ"],[87,"V3","fm","FM AMT"],[88,"V3","fm","FM FRQ"],
 [89,"V1","mix","VOL"],[90,"V2","mix","VOL"],[91,"V3","mix","VOL"],[92,"SN","mix","VOL"],
-[93,"CP","mix","VOL"],[94,"HH","mix","VOL"],[95,"V1","mix","PAN"],[96,"V2","mix","PAN"],
-[97,"V3","mix","PAN"],[100,"SN","mix","PAN"],[101,"CP","mix","PAN"],[102,"HH","mix","PAN"],
+[93,"CP","mix","VOL"],[94,"CH","mix","VOL"],[95,"V1","mix","PAN"],[96,"V2","mix","PAN"],
+[97,"V3","mix","PAN"],[100,"SN","mix","PAN"],[101,"CP","mix","PAN"],[102,"CH","mix","PAN"],
 [109,"V1","mix","SRT"],[110,"V2","mix","SRT"],[111,"V3","mix","SRT"],
-[112,"SN","mix","SRT"],[113,"CP","mix","SRT"],[114,"HH","mix","SRT"],
+[112,"SN","mix","SRT"],[113,"CP","mix","SRT"],[114,"CH","mix","SRT"],
 [103,"V1","mix","DRV"],[104,"V2","mix","DRV"],[105,"V3","mix","DRV"],
-[106,"SN","mix","DRV"],[107,"CP","mix","DRV"],[108,"HH","mix","DRV"],
+[106,"SN","mix","DRV"],[107,"CP","mix","DRV"],[108,"CH","mix","DRV"],
 [115,"ALL","mix","ALL SRT"],
 [116,"V1","lfo","LFO FRQ"],[117,"V2","lfo","LFO FRQ"],[118,"V3","lfo","LFO FRQ"],
-[119,"SN","lfo","LFO FRQ"],[120,"CP","lfo","LFO FRQ"],[121,"HH","lfo","LFO FRQ"],
+[119,"SN","lfo","LFO FRQ"],[120,"CP","lfo","LFO FRQ"],[121,"CH","lfo","LFO FRQ"],
 [122,"V1","lfo","LFO AMT"],[123,"V2","lfo","LFO AMT"],[124,"V3","lfo","LFO AMT"],
-[125,"SN","lfo","LFO AMT"],[126,"CP","lfo","LFO AMT"],[127,"HH","lfo","LFO AMT"],
+[125,"SN","lfo","LFO AMT"],[126,"CP","lfo","LFO AMT"],[127,"CH","lfo","LFO AMT"],
 ];
 // device display scales: coarse tune AND fm frq read -60..+67,
 // fine and pan -63..+64
 const disp = (name, v) =>
-  name.endsWith(" CT") || name === "FM FRQ" ? v - 60
+  name.endsWith(" CT") || ["FM FRQ", "F1", "F2"].includes(name) ? v - 60
   : name.endsWith(" FT") || name === "PAN" ? v - 63 : v;
 const WAVEFORMS = ["sin","tri","saw","rec","noi","pwm"];
 // (cc values 6+ make the device DISPLAY "s0.." sample names, but the knob
 // can't reach them — firmware leftovers from the original LXR's sample
 // oscillator. not real; not offered.)
-const VIDX = { V1: 0, V2: 1, V3: 2, SN: 3, CP: 4, HH: 5 };
+const VIDX = { V1: 0, V2: 1, V3: 2, SN: 3, CP: 4, CH: 5 };  // OH
+// has no engine index: the hats SHARE voice 6 (nrpn params live on cl hh)
 // transient ROM list as read off the DEVICE screen (manual p.32 lists 15
 // entries with different short names — the 02 firmware shows these 14)
 const TRANSIENTS = ["snp","ofs","clk","ck2","tik","kik","rim","drp","hat",
@@ -70,17 +71,37 @@ const LFO_SYNCS = ["off","4/1","2/1","1/1","1/2","1/3","1/4","1/6","1/8",
 const LFO_RTGS = ["off","v1","v2","v3","v4","v5","v6"];
 // audio output routing: stereo pairs, singles, or the fx bus (device sweep)
 const OUT_ROUTES = ["st1","st2","l1","r1","l2","r2","fx"];
-// dst menus (lfo/velocity) walk the internal parameter table, which is
-// the cc map shifted by one: menu index n = (cc n+1)'s param. verified
-// 2026-08-08 by 28 consecutive device-screen readings (incl. the cc6
+// LFO dst walks the GLOBAL parameter table = the cc map shifted by one
+// (verified 2026-08-08: 28 consecutive screen readings incl. the cc6
 // hole showing "off"). indices past the cc range: names unknown yet
 const DST_NAMES = { 0: "off", 5: "off", 97: "off", 98: "off" };  // holes:
 // enum 5/97/98 = the cc 6/98/99 gaps (data entry), device displays off
 for (const [cc, v, _s, name] of CCS)
   DST_NAMES[cc - 1] = v.toLowerCase() + " " + name.toLowerCase();
-const VOICES = ["V1","V2","V3","SN","CP","HH","ALL"];
+// VEL dst (the modulation pane's dst) is DIFFERENT: a per-voice menu of
+// that voice's own params in pane order. cl hh enumerated COMPLETE on the
+// device 2026-08-09; drum1's head+tail enumerated 2026-08-08; the middle
+// (click/filter/lfo/mix) follows the verified hh pattern. one open
+// ambiguity: click-frq and filter-frq should sit back to back (both
+// panes contribute) — the hh reading showed a single "frq", possibly
+// merged in transcription. SN/CP lists unverified: numbers only
+const VEL_DST = (() => {
+  const CLICK = ["wav","vol","frq"], FILTER = ["frq","res","typ","drv"];
+  const LFO = ["frq","snc","mod","wav","rtg","ofs"];
+  const MIX = ["vol","pan","srt","drv"], FX = ["p1","p2","p3","p4"];
+  const drum = ["off","coa","fin","wav","pwm","atk","dec","slp",
+                "dec","slp","mod","dst","amt","vol",
+                "amt","frq","wav","mod",
+                ...CLICK, ...FILTER, ...LFO, ...MIX, ...FX];
+  const hats = ["off","coa","fin","wav","pwm","atk","d1","d2","slp",
+                "dst","amt","vol","f1","f2","g1","g2",
+                ...CLICK, ...FILTER, ...LFO, ...MIX, ...FX];
+  return { V1: drum, V2: drum, V3: drum, CH: hats };
+})();
+const VOICES = ["V1","V2","V3","SN","CP","CH","OH","ALL"];
 const VOICE_LABEL = {V1:"drum1", V2:"drum2", V3:"drum3",
-                     SN:"snare", CP:"clp/cym", HH:"cl hh · op hh", ALL:"master"};
+                     SN:"snare", CP:"clp/cym", CH:"cl hh", OH:"op hh",
+                     ALL:"master"};
 // triggers: [label, key, note, channel] — voices live on ch 1..7 (mixer
 // page setup), note is free ("any"); drum1 ch1 is chromatic-friendly
 const TRIGS = [["drum1","K",60,1],["drum2","T",60,2],["drum3","G",60,3],
@@ -202,12 +223,14 @@ function voicePages(v) {
   // device modulation page: dec slp mod, then velocity dst amt vol
   const mod = [...byName("MOD DEC"), ...byName("MOD SLP"), ...byName("ENV MOD AMT")];
   if (i !== undefined)
-    mod.push({ label: "vel dst", n: 21 + i, max: 255, dst: true },
+    mod.push({ label: "vel dst", n: 21 + i, max: 255, dst: VEL_DST[v] || {} },
              { label: "vel amt", n: 15 + i, max: 127 },
              { label: "vel>vol", n: 9 + i, names: ["off", "on"] });
   if (mod.length) pages.push(["modulation", mod]);
   // device fm page: amt frq wav mod (wav = cc "WF MOD"; mod = mix/mod select)
   const fm = [...byName("FM AMT"), ...byName("FM FRQ"), ...byName("WF MOD")];
+  const fmCcs = new Set(fm.map(r => r.cc[0]));
+  fm.push(...ccs("fm").filter(r => !fmCcs.has(r.cc[0])));  // cp/hh o1+o2 mods
   if (fm.length && i !== undefined && i < 3)
     // device-verified: 0 shows "FM" (osc2 modulates), 1 shows "Mix" (osc2
     // blended in) — the manual's "Mix/Mod select" wording had it backwards
@@ -232,7 +255,7 @@ function voicePages(v) {
              { label: "rtg", n: 45 + i, names: LFO_RTGS },
              { label: "ofs", n: 57 + i, max: 127 },
              { label: "voi", n: 33 + i, max: 6 },
-             { label: "dst", n: 39 + i, max: 255, dst: true });
+             { label: "dst", n: 39 + i, max: 255, dst: DST_NAMES });
   if (lfo.length) pages.push(["lfo", lfo]);
   const mix = ccs("mix");
   if (i !== undefined) mix.push({ label: "out", n: 87 + i, names: OUT_ROUTES });
@@ -273,11 +296,11 @@ for (const v of VOICES) {
         <span class="val">0</span>`;
       const inp = row.querySelector("input"), val = row.querySelector(".val");
       let show = null;
-      if (dst) {  // resolved param name on its own small line under the slider
-        const nameEl = document.createElement("div");
+      if (dst) {  // resolved name (from the row's own lookup table) on its
+        const nameEl = document.createElement("div");  // own line underneath
         nameEl.className = "dstname";
         row.appendChild(nameEl);
-        show = v => { val.textContent = v; nameEl.textContent = DST_NAMES[v] ?? ""; };
+        show = v => { val.textContent = v; nameEl.textContent = dst[v] ?? ""; };
       }
       inp.oninput = () => { show ? show(+inp.value) : val.textContent = inp.value;
         // nrpn data entry is 7-bit: values past 127 (dst enums go there in
@@ -291,7 +314,8 @@ for (const v of VOICES) {
   const addCc = ([cc, _v, _s, name]) => {
     const row = document.createElement("div");
     row.className = "prm";
-    if (name === "OSC1 WF" || name.startsWith("WF MOD")) {
+    if (name === "OSC1 WF" || name.startsWith("WF MOD")
+        || name.startsWith("WAV O")) {
       // waveforms rotate with arrows: click through with the mouse while
       // the other hand taps a trigger key — nothing steals the keyboard
       row.innerHTML = `<label title="cc ${cc}">${name.toLowerCase()}</label>
@@ -329,7 +353,7 @@ for (const v of VOICES) {
     box.insertAdjacentHTML("beforeend", `<div class="sect">${sect}</div>`);
     for (const r of rows) r.cc ? addCc(r.cc) : addNrpn(r);
   }
-  if (["V1","V2","V3","SN","CP","HH"].includes(v)) {
+  if (["V1","V2","V3","SN","CP","CH","OH"].includes(v)) {
     const cv = document.createElement("canvas");
     cv.className = "envg"; cv.dataset.voice = v; cv.width = 260; cv.height = 44;
     box.appendChild(cv);
@@ -340,7 +364,8 @@ for (const v of VOICES) {
 // amp envelope graph: attack/decay lengths + slope curvature, straight from
 // the sliders (visual aid — the numbers already went to the device live)
 const ENV_CCS = { V1:[50,51,63], V2:[52,53,64], V3:[54,55,65],
-                  SN:[56,57,66], CP:[58,59,67], HH:[60,61,68] };
+                  SN:[56,57,66], CP:[58,59,67],
+                  CH:[60,61,68], OH:[60,62,68] };  // hats share atk+slp
 function drawEnv(voice) {
   const spec = ENV_CCS[voice];
   const cv = document.querySelector(`canvas[data-voice="${voice}"]`);
