@@ -126,17 +126,18 @@ number).
 - st1 st2 l1 r1 l2 r2 fx. named stepper in editor. (so lambo routes
   drum1 to st1, faders to the fx bus)
 
-### c8b. vel dst is a PER-VOICE menu (2026-08-09) — not the global table
-- the modulation pane's dst lists THE VOICE'S OWN params in pane order.
-  cl hh enumerated complete: off coa fin wav pwm atk d1 d2 slp dst amt
-  vol f1 f2 g1 g2 wav vol frq [frq?] res typ drv frq snc mod wav rtg ofs
-  vol pan srt drv p1 p2 p3 p4. drum1's head+tail match (2026-08-08 note)
-- OPEN AMBIGUITY: click-frq and filter-frq should be back to back (both
-  panes contribute one) but the reading shows a single frq. spot-check:
-  sweep cl hh vel dst around there — one frq or two?
-- editor: vel dst sliders show per-voice names (drums + cl hh; snare and
-  clp/cym show numbers until their menus are walked). lfo dst keeps the
-  global table names
+### c8b. vel dst — SOLVED (2026-08-09)
+- the device MENU is per-voice (the voice's own params in pane order;
+  cl hh enumerated complete) but the sent VALUE is a GLOBAL param id,
+  same table as lfo dst: sending 18 made cl hh's dst read coa (= cc19's
+  param), 19 read fin (= cc20). click frq / filter frq confirmed
+  separate params (set to different values on the device)
+- editor: vel dst is now a STEPPER cycling the voice's own cc-backed
+  destinations by global id. nrpn-backed dests (pwm, click, flt typ/drv,
+  lfo snc/wav/rtg/ofs, fx p1-p4) have ids past 127: unreachable over
+  7-bit nrpn, device-knob only
+- still unexplained: the FILE byte encoding for dst (135/93/157/226 in
+  real kits) is a third numbering — neither menu position nor global id
 
 ### c8. lfo dst name table — CRACKED (28-value sweep, 2026-08-08)
 - dst menu index n = internal param enum n = (cc n+1)'s parameter for the

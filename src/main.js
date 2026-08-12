@@ -78,26 +78,12 @@ const DST_NAMES = { 0: "off", 5: "off", 97: "off", 98: "off" };  // holes:
 // enum 5/97/98 = the cc 6/98/99 gaps (data entry), device displays off
 for (const [cc, v, _s, name] of CCS)
   DST_NAMES[cc - 1] = v.toLowerCase() + " " + name.toLowerCase();
-// VEL dst (the modulation pane's dst) is DIFFERENT: a per-voice menu of
-// that voice's own params in pane order. cl hh enumerated COMPLETE on the
-// device 2026-08-09; drum1's head+tail enumerated 2026-08-08; the middle
-// (click/filter/lfo/mix) follows the verified hh pattern. one open
-// ambiguity: click-frq and filter-frq should sit back to back (both
-// panes contribute) — the hh reading showed a single "frq", possibly
-// merged in transcription. SN/CP lists unverified: numbers only
-const VEL_DST = (() => {
-  const CLICK = ["wav","vol","frq"], FILTER = ["frq","res","typ","drv"];
-  const LFO = ["frq","snc","mod","wav","rtg","ofs"];
-  const MIX = ["vol","pan","srt","drv"], FX = ["p1","p2","p3","p4"];
-  const drum = ["off","coa","fin","wav","pwm","atk","dec","slp",
-                "dec","slp","mod","dst","amt","vol",
-                "amt","frq","wav","mod",
-                ...CLICK, ...FILTER, ...LFO, ...MIX, ...FX];
-  const hats = ["off","coa","fin","wav","pwm","atk","d1","d2","slp",
-                "dst","amt","vol","f1","f2","g1","g2",
-                ...CLICK, ...FILTER, ...LFO, ...MIX, ...FX];
-  return { V1: drum, V2: drum, V3: drum, CH: hats };
-})();
+// VEL dst sends are GLOBAL param ids too (verified 2026-08-09: sending
+// 18 makes cl hh's dst read "coa" = cc19's param, 19 reads "fin"). the
+// device knob menu is just a per-voice view over that table, so the
+// editor offers a stepper over the voice's own cc-backed destinations.
+// nrpn-backed dests (pwm, click, flt typ/drv, lfo extras, fx) have ids
+// past 127 — unreachable over 7-bit nrpn, the device knob only
 const VOICES = ["V1","V2","V3","SN","CP","CH","OH","ALL"];
 const VOICE_LABEL = {V1:"drum1", V2:"drum2", V3:"drum3",
                      SN:"snare", CP:"clp/cym", CH:"cl hh", OH:"op hh",
@@ -223,9 +209,9 @@ function voicePages(v) {
   // device modulation page: dec slp mod, then velocity dst amt vol
   const mod = [...byName("MOD DEC"), ...byName("MOD SLP"), ...byName("ENV MOD AMT")];
   if (i !== undefined)
-    mod.push({ label: "vel dst", n: 21 + i, max: 255, dst: VEL_DST[v] || {} },
-             { label: "vel amt", n: 15 + i, max: 127 },
-             { label: "vel>vol", n: 9 + i, names: ["off", "on"] });
+    mod.push({ label: "dst", n: 21 + i, pairs: null },  // filled below
+             { label: "amt", n: 15 + i, max: 127 },
+             { label: "vol", n: 9 + i, names: ["off", "on"] });
   if (mod.length) pages.push(["modulation", mod]);
   // device fm page: amt frq wav mod (wav = cc "WF MOD"; mod = mix/mod select)
   const fm = [...byName("FM AMT"), ...byName("FM FRQ"), ...byName("WF MOD")];
@@ -260,6 +246,19 @@ function voicePages(v) {
   const mix = ccs("mix");
   if (i !== undefined) mix.push({ label: "out", n: 87 + i, names: OUT_ROUTES });
   if (mix.length) pages.push(["mix", mix]);
+  // the voice's reachable velocity-mod destinations, page order:
+  // [global id, name] pairs. id = cc - 1 (VERIFIED 2026-08-09: sending 18
+  // makes cl hh's dst read coa = cc19's param; 19 reads fin). nrpn-backed
+  // dests (pwm/click/typ/drv/lfo extras/fx) have ids past 127 — the 7-bit
+  // data entry can't reach them, only the device knob can. waveform-mod
+  // selectors (wav o1/o2) aren't destinations on the device menu
+  const dstRow = pages.flatMap(([_s, rows]) => rows)
+    .find(r => r.label === "dst" && r.pairs === null);
+  if (dstRow)
+    dstRow.pairs = [[0, "off"], ...pages.flatMap(([_s, rows]) => rows)
+      .filter(r => r.cc && !r.cc[3].startsWith("WAV O"))
+      .map(r => [r.cc[0] - 1,
+                 (DST_NAMES[r.cc[0] - 1] || "").replace(/^\S+ /, "")])];
   return pages;
 }
 
@@ -269,9 +268,31 @@ for (const v of VOICES) {
   const box = document.createElement("div");
   box.className = "voice";
   box.innerHTML = `<h2>${VOICE_LABEL[v]}</h2>`;
-  const addNrpn = ({ label, n, max, names, dst }) => {
+  const addNrpn = ({ label, n, max, names, dst, pairs }) => {
     const row = document.createElement("div");
     row.className = "prm";
+    if (pairs) {  // stepper over [value, name] pairs (vel dst: global ids)
+      row.innerHTML = `<label title="nrpn ${n}">${label}</label>
+        <div class="wfstep"><button type="button">‹</button
+        ><span class="wfname" data-nrpn="${n}">${pairs[0][1]}</span
+        ><button type="button">›</button></div><span class="val"></span>`;
+      const [prevB, nextB] = row.querySelectorAll("button");
+      const nameEl = row.querySelector(".wfname");
+      const hid = Object.assign(document.createElement("input"),
+                                { type: "hidden", value: String(pairs[0][0]) });
+      row.appendChild(hid);
+      const step = d => {
+        const cur = pairs.findIndex(p => p[0] === +hid.value);
+        const j = ((cur < 0 ? 0 : cur) + d + pairs.length) % pairs.length;
+        hid.value = pairs[j][0]; nameEl.textContent = pairs[j][1];
+        sendNRPN(n, pairs[j][0]); raw[NRPN_OFF(n)] = pairs[j][0];
+      };
+      prevB.onclick = () => step(-1);
+      nextB.onclick = () => step(1);
+      nrpnSliders[n] = { input: hid, valEl: nameEl, pairs };
+      box.appendChild(row);
+      return;
+    }
     if (names) {  // stepper with device names (like waveforms)
       row.innerHTML = `<label title="nrpn ${n}">${label}</label>
         <div class="wfstep"><button type="button">‹</button
@@ -451,6 +472,8 @@ function refreshFromRaw() {
     if (s.input.max !== "" && raw[off] > +s.input.max) s.input.max = raw[off];
     s.input.value = raw[off];
     if (s.show) s.show(raw[off]);
+    else if (s.pairs) s.valEl.textContent =
+      s.pairs.find(p => p[0] === raw[off])?.[1] ?? raw[off];
     else s.valEl.textContent = s.names ? (s.names[raw[off]] ?? raw[off]) : raw[off];
   }
   drawAllEnvs();

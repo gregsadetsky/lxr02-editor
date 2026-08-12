@@ -416,3 +416,21 @@ def test_statechange_never_steals_the_picked_output(browser, URL):
     pg.evaluate("window._fakemidi.outputs.delete('a'); window._fakemidi.onstatechange()")
     assert pg.evaluate("document.getElementById('outsel').value") == "b"
     pg.close()
+
+
+
+def test_vel_dst_is_a_stepper_sending_global_ids(page):
+    """vel dst steps the voice's own destinations, sending GLOBAL param ids
+    (device-verified: 18 -> cl hh coa). drum1: off(0) then coa = cc9 - 1."""
+    page.reload()
+    wait_ready(page)
+    page.evaluate("window._cclog = []")
+    got = page.evaluate("""() => {
+        const span = document.querySelector('span.wfname[data-nrpn="21"]');
+        const next = span.parentElement.querySelectorAll('button')[1];
+        next.click();  // off -> first destination
+        return [span.textContent, window._cclog.slice(-3)];
+    }""")
+    name, log = got
+    assert name == "osc1 ct"  # drum1's first dest: coarse tune
+    assert log == [[99, 0], [98, 21], [6, 8]]  # nrpn 21 <- global id 8 (cc9)
