@@ -490,11 +490,13 @@ def test_fx_rows_exist_and_fill(page):
     wait_ready(page)
     page.select_option("#kitsel", "0")
     page.wait_for_timeout(300)
-    vals = page.evaluate("""() => [108, 110, 113, 117].map(n => {
+    vals = page.evaluate("""() => [108, 110, 111, 112, 113].map(n => {
         const el = document.querySelector(`input[data-nrpn="${n}"]`);
         return el ? el.value : null;
     })""")
-    assert all(v is not None for v in vals)  # fx sliders rendered + linked
-    typ = page.evaluate(
-        """() => document.querySelector('span.wfname[data-nrpn="106"]').textContent""")
-    assert typ in ("off", "drv", "rng", "cmp", "del")  # fx type stepper
+    assert all(v is not None for v in vals)  # d/w + p1-p4 sliders linked
+    steppers = page.evaluate("""() => [106, 107, 109, 114, 115, 117].map(n =>
+        document.querySelector(`span.wfname[data-nrpn="${n}"]`)?.textContent)""")
+    assert steppers[0] in ("off", "drv", "rng", "cmp", "del")  # fx typ
+    assert steppers[5] in ("del", "pp")                        # delay typ
+    assert all(s for s in steppers)  # out/drv-typ/rat/rng-wav all steppers
