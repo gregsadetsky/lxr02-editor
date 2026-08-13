@@ -270,7 +270,7 @@ function voicePages(v) {
       { label: "drv typ", n: 109, names: ["tub", "fld", "clp"] },
       { label: "p1", n: 110, max: 127 }, { label: "p2", n: 111, max: 127 },
       { label: "p3", n: 112, max: 127 }, { label: "p4", n: 113, max: 127 },
-      { label: "rat", n: 114, max: 127 },
+      { label: "rat", n: 114, names: ["1:1","2:1","3:1","4:1","6:1","8:1"] },
       { label: "rng wav", n: 115, names: WAVEFORMS },
       { label: "del typ", n: 117, max: 127 }]]);
   // the voice's velocity-mod destinations = its device menu: every param
