@@ -434,3 +434,15 @@ def test_vel_dst_is_a_stepper_sending_global_ids(page):
     name, log = got
     assert name == "osc1 ct"  # drum1's first dest: coarse tune
     assert log == [[99, 0], [98, 21], [6, 8]]  # nrpn 21 <- global id 8 (cc9)
+
+
+def test_save_filename_has_the_slot_prefix(page):
+    """the device ONLY lists NN- prefixed .SND files (a3, device-verified:
+    an unprefixed file is invisible in the kit list)."""
+    page.reload()
+    wait_ready(page)
+    page.fill("#slot", "7")
+    page.fill("#kitname", "GRB")
+    with page.expect_download() as dl:
+        page.click("#savesnd")
+    assert dl.value.suggested_filename == "07-GRB.SND"

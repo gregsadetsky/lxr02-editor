@@ -510,6 +510,8 @@ function refreshFromRaw() {
 $("loadsnd").onclick = () => $("sndfile").click();
 $("sndfile").onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
+  const m = f.name.match(/^(\d+)-/);  // keep the card slot on round-trips
+  if (m) $("slot").value = Math.min(63, +m[1]);
   raw = new Uint8Array(await f.arrayBuffer());
   refreshFromRaw();
   $("sendall").click();  // loading a kit = hearing it, always
@@ -523,7 +525,10 @@ $("savesnd").onclick = () => {
     if (NRPN_OFF(+n) < raw.length) raw[NRPN_OFF(+n)] = +s.input.value;
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([raw], { type: "application/octet-stream" }));
-  a.download = (name.trim() || "KIT") + ".SND";
+  // the device ONLY lists NN- prefixed files (verified: an unprefixed
+  // .SND on the card is invisible) — slot number = card position
+  const slot = String(Math.min(63, Math.max(0, +$("slot").value || 0)));
+  a.download = slot.padStart(2, "0") + "-" + (name.trim() || "KIT") + ".SND";
   a.click();
 };
 
