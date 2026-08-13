@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-tests (playwright against the built site):
+tests:
 
 ```
 npm run build
