@@ -50,16 +50,13 @@ screen — no file juggling needed. file checks need the SD card afterwards.
 - fx type/routing/amount/dist type/p1-p4/ratio/ringmod wav/delay type =
   nrpn 106-117, per-kit. add as a master-column section, then re-run a2
 
-### a3. save filename: does the device need the "NN-" prefix?
-- editor: save .snd (GARBAGE.SND), copy to a project folder on the SD
-  as-is, AND a second copy named like "10-GARBAGE.SND"
-- device: which of the two shows up in the kit list? does it load?
+### a3. DONE (2026-08-09): the NN- prefix is MANDATORY
+- unprefixed GARBAGE.SND invisible in the kit list; 10-GARBAGE.SND shows
+  as [10]. editor now saves NN-NAME.SND with a slot input (0-63)
 
-### a4. round trip (card only, no device)
-- editor: load .snd → a factory kit straight off the SD card, then
-  immediately save .snd without touching anything
-- tell claude → byte-diff the two files. must be identical (name padding
-  aside). anything else = the editor corrupts on round-trip
+### a4. DONE (2026-08-09): round trip is BYTE-PERFECT
+- zubat through the real editor (headless load + save): 0 param bytes
+  changed; only the name's case differs (editor uppercases)
 
 ## b. page walks — load one kit both sides, page through, compare numbers
 
@@ -170,10 +167,9 @@ number).
 ## d. leftovers / unexplained
 
 ### d1. mix page "len": what does it do? what range? (not in any midi table)
-### d2. are ch/nte stored in the kit file?
-- device: save the same kit twice, changing only mix-page ch (say 3 → 7)
-  between saves, two different TMP slots
-- tell claude → diff locates the byte, or proves they're not in the file
+### d2. DONE (2026-08-09): ch is NOT in the kit file
+- ch-3 vs ch-7 saves byte-identical — voice channel (and presumably nte)
+  live in project data (TMP.PAT next door is the likely home), not kits
 ### d3. dst FILE-byte calibration (the third-numbering mystery)
 - what we know: the dst byte in .SND files is neither the menu position
   nor the sent global id — zubat sends put id 40 into drum2's lfo dst
