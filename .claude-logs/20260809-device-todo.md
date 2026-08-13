@@ -1,5 +1,10 @@
 # lxr device session — things to do later (2026-08-09)
 
+## STATUS: completed 2026-08-09, except:
+- ch-0 omni test (waiting for a project that shows global ch 0)
+- editor code work: lfo dst file translation (voi-aware), fx section
+everything else below is DONE — results live in CHECKS.md
+
 self-contained list, roughly by value. editor = https://lxr02.greg.technology
 (full detail lives in CHECKS.md; this is the hands-on runsheet)
 

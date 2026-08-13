@@ -166,7 +166,10 @@ number).
 
 ## d. leftovers / unexplained
 
-### d1. mix page "len": what does it do? what range? (not in any midi table)
+### d1. DONE (2026-08-09): "len" = sequencer track length, 1-64 steps
+- manual: "the length of the sequencer track". set to 3 -> plays 3 steps
+  and loops. it's sequencer data (lives with patterns, not kit sound) —
+  which is why it's absent from the cc/nrpn tables
 ### d2. DONE (2026-08-09): ch is NOT in the kit file
 - ch-3 vs ch-7 saves byte-identical — voice channel (and presumably nte)
   live in project data (TMP.PAT next door is the likely home), not kits
