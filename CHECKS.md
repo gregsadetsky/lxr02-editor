@@ -46,9 +46,17 @@ screen — no file juggling needed. file checks need the SD card afterwards.
   file 135 (twice), 22 -> 93 (twice), unsent slots kept 10/0/0/0. still
   unexplained, but stable — c8 sweep will crack it
 
-### a2c. editor fx section (found gap)
-- fx type/routing/amount/dist type/p1-p4/ratio/ringmod wav/delay type =
-  nrpn 106-117, per-kit. add as a master-column section, then re-run a2
+### a2c. fx section — DONE (built + device-enumerated 2026-08-09)
+- the device fx pane is DYNAMIC per type. common: typ (off drv rng cmp
+  del), out (st1 st2 l1 r1 l2 r2), d/w (0-100). per type:
+  drv: typ (tub fld clp, nrpn 109) + drv col ton vol (p1-p4)
+  rng: wav (sin..pwm, nrpn 115) + frq (p1?)
+  cmp: rat (1:1 2:1 3:1 4:1 6:1 8:1, nrpn 114) + atk dec tre gai (p1-p4)
+  del: typ (del pp, nrpn 117) + tim rng ton fbk (p1-p4)
+- editor: master column fx section with named steppers for all enums;
+  p1-p4 stay generic sliders (their meaning follows the type)
+- assumption to spot-check someday: p1-p4 nrpn order matches each mode's
+  menu order (e.g. delay tim=p1 ... fbk=p4)
 
 ### a3. DONE (2026-08-09): the NN- prefix is MANDATORY
 - unprefixed GARBAGE.SND invisible in the kit list; 10-GARBAGE.SND shows
