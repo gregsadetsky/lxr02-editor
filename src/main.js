@@ -264,7 +264,8 @@ function voicePages(v) {
     // its menu changes with typ (drv: typ drv col ton vol / rng: wav frq
     // / ...). p1-p4 are the reused per-type param slots
     pages.push(["fx", [
-      { label: "typ", n: 106, names: ["off", "drv", "rng", "cmp", "del"] },
+      { label: "typ", n: 106, names: ["off", "drv", "rng", "cmp", "del"],
+        onstep: () => updateFxPane() },
       { label: "out", n: 107, names: ["st1", "st2", "l1", "r1", "l2", "r2"] },
       { label: "d/w", n: 108, max: 100 },
       { label: "drv typ", n: 109, names: ["tub", "fld", "clp"] },
@@ -320,7 +321,7 @@ for (const v of VOICES) {
   const box = document.createElement("div");
   box.className = "voice";
   box.innerHTML = `<h2>${VOICE_LABEL[v]}</h2>`;
-  const addNrpn = ({ label, n, max, names, dst, pairs, lfoDst }) => {
+  const addNrpn = ({ label, n, max, names, dst, pairs, lfoDst, onstep }) => {
     const row = document.createElement("div");
     row.className = "prm";
     if (lfoDst) {  // lfo dst: steps the menu of whatever voice VOI targets;
@@ -409,6 +410,7 @@ for (const v of VOICES) {
         const i = (+hid.value + d + names.length) % names.length;
         hid.value = i; nameEl.textContent = names[i];
         sendNRPN(n, i); raw[NRPN_OFF(n)] = i;
+        onstep?.();
       };
       prevB.onclick = () => step(-1);
       nextB.onclick = () => step(1);
@@ -483,6 +485,32 @@ for (const v of VOICES) {
   }
   cols.appendChild(box);
 }
+
+// the device's fx pane is dynamic: beyond typ/out/d w, only the active
+// type's params exist — and p1-p4 wear that type's names
+const FX_MODES = {
+  1: { rows: [109, 110, 111, 112, 113],
+       labels: { 110: "drv", 111: "col", 112: "ton", 113: "vol" } },
+  2: { rows: [115, 110], labels: { 110: "frq" } },
+  3: { rows: [114, 110, 111, 112, 113],
+       labels: { 110: "atk", 111: "dec", 112: "tre", 113: "gai" } },
+  4: { rows: [117, 110, 111, 112, 113],
+       labels: { 110: "tim", 111: "rng", 112: "ton", 113: "fbk" } },
+};
+function updateFxPane() {
+  const s106 = nrpnSliders[106];
+  if (!s106) return;
+  const mode = FX_MODES[+s106.input.value] || { rows: [] };
+  for (const n of [109, 110, 111, 112, 113, 114, 115, 117]) {
+    const s = nrpnSliders[n];
+    if (!s) continue;
+    const row = s.input.closest(".prm");
+    row.style.display = mode.rows.includes(n) ? "" : "none";
+    const lbl = (mode.labels || {})[n];
+    if (lbl) row.querySelector("label").textContent = lbl;
+  }
+}
+updateFxPane();
 
 // amp envelope graph: attack/decay lengths + slope curvature, straight from
 // the sliders (visual aid — the numbers already went to the device live)
@@ -588,6 +616,7 @@ function refreshFromRaw() {
     else s.valEl.textContent = s.names ? (s.names[raw[off]] ?? raw[off]) : raw[off];
   }
   drawAllEnvs();
+  updateFxPane();
 }
 $("loadsnd").onclick = () => $("sndfile").click();
 $("sndfile").onchange = async e => {

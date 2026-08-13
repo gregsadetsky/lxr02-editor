@@ -500,3 +500,42 @@ def test_fx_rows_exist_and_fill(page):
     assert steppers[0] in ("off", "drv", "rng", "cmp", "del")  # fx typ
     assert steppers[5] in ("del", "pp")                        # delay typ
     assert all(s for s in steppers)  # out/drv-typ/rat/rng-wav all steppers
+
+
+def test_fx_pane_is_dynamic_like_the_device(page):
+    """only the active fx type's params show, and p1-p4 wear its names
+    (off: nothing extra / rng: wav+frq / drv: typ drv col ton vol ...)."""
+    page.reload()
+    wait_ready(page)
+    def state():
+        return page.evaluate("""() => {
+            const vis = n => {
+                const el = document.querySelector(`[data-nrpn="${n}"]`);
+                return el.closest('.prm').style.display !== 'none';
+            };
+            const lbl = n => document.querySelector(`[data-nrpn="${n}"]`)
+                .closest('.prm').querySelector('label').textContent;
+            return { typ: document.querySelector('span.wfname[data-nrpn="106"]').textContent,
+                     v109: vis(109), v110: vis(110), v114: vis(114),
+                     v115: vis(115), v117: vis(117), l110: lbl(110) };
+        }""")
+    # step to a known type: click next until "rng"
+    for _ in range(6):
+        if state()["typ"] == "rng":
+            break
+        page.evaluate("""() => document.querySelector('span.wfname[data-nrpn="106"]')
+            .parentElement.querySelectorAll('button')[1].click()""")
+    s = state()
+    assert s["typ"] == "rng"
+    assert s["v115"] and s["v110"]          # wav + frq shown
+    assert not s["v109"] and not s["v114"] and not s["v117"]  # others hidden
+    assert s["l110"] == "frq"               # p1 wears ringmod's name
+    # and off shows nothing beyond typ/out/d w
+    for _ in range(6):
+        if state()["typ"] == "off":
+            break
+        page.evaluate("""() => document.querySelector('span.wfname[data-nrpn="106"]')
+            .parentElement.querySelectorAll('button')[1].click()""")
+    s = state()
+    assert s["typ"] == "off"
+    assert not (s["v109"] or s["v110"] or s["v114"] or s["v115"] or s["v117"])
