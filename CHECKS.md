@@ -71,7 +71,8 @@ number).
 - 2026-08-09 partial result: mix page is vol pan srt drv — manual's
   "distortion" (cc 103-108) displays as DRV, "decimation" (cc 109-114)
   displays as SRT, and srt comes BEFORE drv. editor fixed
-### b2. snare osc page: where do nse frq / mix osc nse sit? is pwm shown?
+### b2. snare osc page: DONE (2026-08-09) — coa fin NOI MIX wav pwm,
+       device names noi/mix; editor matches
 ### b3. hats: DONE (2026-08-09) — clp/cym still to confirm
 - hats are TWO voices on the device: editor now has separate cl hh and
   op hh lanes. osc pane = coa fin wav; pwm on CL HH ONLY. decays are
@@ -85,8 +86,8 @@ number).
   CONFIRM on the device, plus where eg rpt sits on its amp pane
 ### b4. hh amp env: atk, ch dec, oh dec, slp — this order?
 ### b5. snare/clp amp env: where does rpt (eg repeat) appear?
-### b6. clp/cym + hh modulation page: really just dst amt vol?
-       (they have no mod envelope ccs)
+### b6. clp/cym + hh modulation page: DONE — dst amt vol confirmed via
+       both voices' dst-menu enumerations (2026-08-09)
 ### b7. signed/scaled displays — compare NUMBERS, not just order:
 - pan: DONE — device shows -63..+64, editor matches
 - fm frq: DONE — -60..+67 like coarse tune (2026-08-09), editor matches
@@ -145,11 +146,13 @@ number).
   also implies nse/mix sit on snare's osc pane and rpt in its amp menu)
 - editor now writes/reads the table index in .snd dst bytes and
   live-sends the global id — vel dst round-trips device-correct
-- REMAINING: clp/cym menu is one entry short in our model (36 built vs
-  37 slots) — walk its dst menu on the device to find the extra entry;
-  lfo dst file bytes still untranslated (voi-dependent, editor sends
-  live correctly but saves the raw slider value); byte 8 flips 0/1
-  between saves sometimes, unexplained
+- clp/cym dst menu enumerated COMPLETE (2026-08-09): 36 entries, no
+  missing slot — the "37 slots" was an arithmetic slip. block sizes
+  38/38/38/37/36/36 tile with no gaps; bases refined to 1/40/78/116/
+  153/190 (every measured fin = base+1). cp amp order = atk dec RPT slp
+  (rpt between dec and slp; snare assumed same, unverified)
+- REMAINING: lfo dst file bytes untranslated (voi-dependent; live sends
+  correct); byte 8 flips 0/1 between saves sometimes, unexplained
 
 ### c8. lfo dst name table — CRACKED (28-value sweep, 2026-08-08)
 - dst menu index n = internal param enum n = (cc n+1)'s parameter for the

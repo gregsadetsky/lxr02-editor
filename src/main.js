@@ -19,11 +19,11 @@ const CCS = [
 [47,"SN","filter","FLT RES"],[48,"CP","filter","FLT RES"],[49,"CH","filter","FLT RES"],
 [50,"V1","amp env","VOL ATK"],[51,"V1","amp env","VOL DEC"],[52,"V2","amp env","VOL ATK"],
 [53,"V2","amp env","VOL DEC"],[54,"V3","amp env","VOL ATK"],[55,"V3","amp env","VOL DEC"],
-[56,"SN","amp env","VOL ATK"],[57,"SN","amp env","VOL DEC"],[58,"CP","amp env","VOL ATK"],
-[59,"CP","amp env","VOL DEC"],[60,"CH","amp env","VOL ATK"],[61,"CH","amp env","D1"],
+[56,"SN","amp env","VOL ATK"],[57,"SN","amp env","VOL DEC"],[69,"SN","amp env","RPT"],
+[58,"CP","amp env","VOL ATK"],[59,"CP","amp env","VOL DEC"],[70,"CP","amp env","RPT"],[60,"CH","amp env","VOL ATK"],[61,"CH","amp env","D1"],
 [62,"OH","amp env","D2"],[63,"V1","amp env","VOL SLP"],[64,"V2","amp env","VOL SLP"],
 [65,"V3","amp env","VOL SLP"],[66,"SN","amp env","VOL SLP"],[67,"CP","amp env","VOL SLP"],
-[68,"CH","amp env","VOL SLP"],[69,"SN","amp env","EG RPT"],[70,"CP","amp env","EG RPT"],
+[68,"CH","amp env","VOL SLP"],
 [71,"V1","modulation","MOD DEC"],[72,"V2","modulation","MOD DEC"],
 [73,"V3","modulation","MOD DEC"],[74,"SN","modulation","MOD DEC"],
 [75,"V1","modulation","ENV MOD AMT"],[76,"V2","modulation","ENV MOD AMT"],
@@ -188,9 +188,10 @@ const cols = $("cols");
 // each voice mirrors the device's page order (walked on the real device):
 // osc, amplitude envelope, modulation, fm, click, filter, lfo, mix.
 // a row is {cc:[...]} straight from CCS, or an nrpn {label, n, max?, names?}.
-// .SND dst-byte table: 0 = off, then each voice's params in menu order
-// starting at its base (measured 2026-08-09: fin = base+1 on all voices)
-const DST_BASE = { V1: 1, V2: 39, V3: 77, SN: 115, CP: 152, CH: 189 };
+// .SND dst-byte table: 0 = off, then the voices' menus tiled end to end
+// (block sizes 38/38/38/37/36/36, no gaps). fin = base+1 measured on all
+// six voices, 2026-08-09
+const DST_BASE = { V1: 1, V2: 40, V3: 78, SN: 116, CP: 153, CH: 190 };
 
 function voicePages(v) {
   const i = VIDX[v];  // undefined for ALL/master
