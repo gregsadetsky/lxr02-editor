@@ -296,7 +296,7 @@ def test_sections_follow_device_page_order(page):
     assert sects[5] == ["osc", "amp env", "modulation", "fm", "click",
                        "filter", "lfo", "mix"]  # cl hh owns the engine
     assert sects[6] == ["amp env"]  # op hh: just d2 (shares the engine)
-    assert sects[7] == ["mix"]  # master: all srt only
+    assert sects[7] == ["mix", "fx"]  # master: all srt + the fx block
 
 
 def test_new_nrpn_rows_fill_from_kit_and_high_values_survive(page):
@@ -312,36 +312,26 @@ def test_new_nrpn_rows_fill_from_kit_and_high_values_survive(page):
             f"""() => {{ const e = document.querySelector('[data-nrpn="{n}"]');
                 return e ? e.tagName : null; }}""")
         assert el, f"nrpn {n} row missing"
-    ok = page.evaluate("""() => {
-        const inp = document.querySelector('input[data-nrpn="39"]');
-        // simulate a kit byte past 127 (lfo dst enums reach 226 in the corpus)
-        inp.max = 127; inp.max = Math.max(+inp.max, 226); inp.value = 226;
-        return +inp.value === 226;
-    }""")
-    assert ok
+    stepper = page.evaluate(
+        """() => !!document.querySelector('span.wfname[data-nrpn="39"]')""")
+    assert stepper  # lfo dst is a voi-aware stepper now
 
 
-def test_dst_sliders_show_param_names(page):
-    """dst menu index n = (cc n+1)'s param — device-verified by a 28-value
-    sweep. the editor shows the resolved name next to the number."""
+def test_lfo_dst_steps_and_sends_global_ids(page):
+    """lfo dst walks the voi-targeted voice's menu with device short
+    names, live-sending global ids; file-only dests are tagged."""
     page.reload()
     wait_ready(page)
-    shown = page.evaluate("""() => {
-        const inp = document.querySelector('input[data-nrpn="39"]');
-        const row = inp.closest('.prm');
-        const out = [];
-        for (const v of [0, 1, 5, 40, 200]) {
-            inp.value = v; inp.dispatchEvent(new Event('input'));
-            out.push([row.querySelector('.val').textContent,
-                      row.querySelector('.dstname').textContent]);
-        }
-        return out;
+    page.evaluate("window._cclog = []")
+    got = page.evaluate("""() => {
+        const span = document.querySelector('span.wfname[data-nrpn="39"]');
+        const next = span.parentElement.querySelectorAll('button')[1];
+        next.click();  // off -> drum1 coa (init voi targets v1)
+        return [span.textContent, window._cclog.slice(-3)];
     }""")
-    assert shown[0] == ["0", "off"]
-    assert shown[1] == ["1", "v1 osc1 wf"]   # cc2's param
-    assert shown[2] == ["5", "off"]          # the cc6 data-entry hole
-    assert shown[3] == ["40", "sn flt frq"]  # cc41's param
-    assert shown[4] == ["200", ""]           # past the cc range: no name
+    name, log = got
+    assert name == "coa"
+    assert log == [[99, 0], [98, 39], [6, 8]]  # global id 8 = cc9 = v1 coa
 
 
 def test_filter_type_is_a_named_stepper(page):
@@ -432,7 +422,7 @@ def test_vel_dst_is_a_stepper_sending_global_ids(page):
         return [span.textContent, window._cclog.slice(-3)];
     }""")
     name, log = got
-    assert name == "osc1 ct"  # drum1's first dest: coarse tune
+    assert name == "coa"  # drum1's first dest, device short name
     assert log == [[99, 0], [98, 21], [6, 8]]  # nrpn 21 <- global id 8 (cc9)
 
 

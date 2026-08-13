@@ -193,6 +193,16 @@ const cols = $("cols");
 // six voices, 2026-08-09
 const DST_BASE = { V1: 1, V2: 40, V3: 78, SN: 116, CP: 153, CH: 190 };
 
+// the dst menus show the DEVICE's short names (coa fin wav ...), not
+// our cc-table names
+const DST_SHORT = { "OSC1 CT": "coa", "OSC1 FT": "fin", "OSC1 WF": "wav",
+  "VOL ATK": "atk", "VOL DEC": "dec", "VOL SLP": "slp", "D1": "d1",
+  "D2": "d2", "RPT": "rpt", "MOD DEC": "dec", "MOD SLP": "slp",
+  "ENV MOD AMT": "mod", "FM AMT": "amt", "FM FRQ": "frq", "WF MOD": "wav",
+  "NOI": "noi", "MIX": "mix", "F1": "f1", "F2": "f2", "G1": "g1",
+  "G2": "g2", "FLT FRQ": "frq", "FLT RES": "res", "LFO FRQ": "frq",
+  "MOD": "mod", "VOL": "vol", "PAN": "pan", "SRT": "srt", "DRV": "drv" };
+
 function voicePages(v) {
   const i = VIDX[v];  // undefined for ALL/master
   const ccs = sect => CCS.filter(c => c[1] === v && c[2] === sect).map(e => ({ cc: e }));
@@ -245,11 +255,19 @@ function voicePages(v) {
              { label: "rtg", n: 45 + i, names: LFO_RTGS },
              { label: "ofs", n: 57 + i, max: 127 },
              { label: "voi", n: 33 + i, max: 6 },
-             { label: "dst", n: 39 + i, max: 255, dst: DST_NAMES });
+             { label: "dst", n: 39 + i, lfoDst: 33 + i });
   if (lfo.length) pages.push(["lfo", lfo]);
   const mix = ccs("mix");
   if (i !== undefined) mix.push({ label: "out", n: 87 + i, names: OUT_ROUTES });
   if (mix.length) pages.push(["mix", mix]);
+  if (v === "ALL")  // the per-kit fx block (manual 9.8; enum names TBD)
+    pages.push(["fx", [
+      { label: "typ", n: 106, max: 127 }, { label: "rtg", n: 107, max: 127 },
+      { label: "amt", n: 108, max: 127 }, { label: "dtyp", n: 109, max: 127 },
+      { label: "p1", n: 110, max: 127 }, { label: "p2", n: 111, max: 127 },
+      { label: "p3", n: 112, max: 127 }, { label: "p4", n: 113, max: 127 },
+      { label: "rat", n: 114, max: 127 }, { label: "rmw", n: 115, max: 127 },
+      { label: "dly", n: 117, max: 127 }]]);
   // the voice's velocity-mod destinations = its device menu: every param
   // row in page order EXCEPT wav o1/o2, lfo voi + lfo dst, and mix out
   // (verified absent from the menus), plus fx p1-p4 at the end.
@@ -265,7 +283,7 @@ function voicePages(v) {
         !(sect === "lfo" && (r.label === "voi" || r.label === "dst")) &&
         r.label !== "out")
       .map(r => r.cc
-        ? [r.cc[0] - 1, (DST_NAMES[r.cc[0] - 1] || "").replace(/^\S+ /, "")]
+        ? [r.cc[0] - 1, DST_SHORT[r.cc[3]] || r.cc[3].toLowerCase()]
         : [null, r.label]));
     if (v === "CH") {  // the device menu is atk d1 D2 slp — d2 renders
       const d1 = entries.findIndex(([id]) => id === 60);  // in the op hh
@@ -281,15 +299,71 @@ function voicePages(v) {
   return pages;
 }
 
+const ALL_PAGES = {};
+const DST_MENUS = {};  // voice -> [[sendId, fileIdx, name], ...]
 for (const v of VOICES) {
-  const pages = voicePages(v);
+  ALL_PAGES[v] = voicePages(v);
+  const row = ALL_PAGES[v].flatMap(([_s, rows]) => rows)
+    .find(r => r.label === "dst" && r.pairs);
+  if (row) DST_MENUS[v] = row.pairs;
+}
+const VOI_KEYS = ["V1", "V2", "V3", "SN", "CP", "CH"];  // voi 1-6
+
+for (const v of VOICES) {
+  const pages = ALL_PAGES[v];
   if (!pages.length) continue;
   const box = document.createElement("div");
   box.className = "voice";
   box.innerHTML = `<h2>${VOICE_LABEL[v]}</h2>`;
-  const addNrpn = ({ label, n, max, names, dst, pairs }) => {
+  const addNrpn = ({ label, n, max, names, dst, pairs, lfoDst }) => {
     const row = document.createElement("div");
     row.className = "prm";
+    if (lfoDst) {  // lfo dst: steps the menu of whatever voice VOI targets;
+      // the file byte places the target implicitly (base + position)
+      row.innerHTML = `<label title="nrpn ${n}">${label}</label>
+        <div class="wfstep"><button type="button">‹</button
+        ><span class="wfname" data-nrpn="${n}">off</span
+        ><button type="button">›</button></div><span class="val"></span>`;
+      const [prevB, nextB] = row.querySelectorAll("button");
+      const nameEl = row.querySelector(".wfname");
+      const hid = Object.assign(document.createElement("input"),
+                                { type: "hidden", value: "0" });
+      row.appendChild(hid);
+      const menu = () => {
+        const voi = +(nrpnSliders[lfoDst]?.input.value || 1);
+        return DST_MENUS[VOI_KEYS[Math.min(Math.max(voi, 1), 6) - 1]];
+      };
+      const decode = fi => {  // the byte alone names its target
+        for (const k of VOI_KEYS) {
+          const p = DST_MENUS[k].find(q => q[1] === fi);
+          if (p) return (k !== v ? k.toLowerCase() + " " : "") + p[2]
+            + (p[0] === null ? " ·file" : "");
+        }
+        return fi === 0 ? "off" : String(fi);
+      };
+      const show = fi => { nameEl.textContent = decode(fi); };
+      const step = d => {
+        const m = menu();
+        const cur = m.findIndex(p => p[1] === +hid.value);
+        const j = ((cur < 0 ? 0 : cur) + d + m.length) % m.length;
+        hid.value = m[j][1];
+        show(m[j][1]);
+        if (m[j][0] !== null) sendNRPN(n, m[j][0]);
+        raw[NRPN_OFF(n)] = m[j][1];
+      };
+      prevB.onclick = () => step(-1);
+      nextB.onclick = () => step(1);
+      const sendFor = fi => {  // file idx -> live-sendable global id
+        for (const k of VOI_KEYS) {
+          const p = DST_MENUS[k].find(q => q[1] === fi);
+          if (p) return p[0];
+        }
+        return fi === 0 ? 0 : null;
+      };
+      nrpnSliders[n] = { input: hid, valEl: nameEl, show, sendFor };
+      box.appendChild(row);
+      return;
+    }
     if (pairs) {  // dst stepper: [sendId, fileIdx, name] triples — the
       // hidden value (and the file byte) is the fileIdx; live sends use
       // the global id when the dest is midi-reachable
@@ -468,7 +542,10 @@ $("sendall").onclick = () => {  // the whole kit, paced: ~0.9s
   for (const n of Object.keys(nrpnSliders)) {
     const s = nrpnSliders[n];
     const val = +s.input.value;
-    if (s.pairs) {  // dst: the stored value is a FILE index — translate
+    if (s.sendFor) {  // lfo dst: file index -> global id (or unsendable)
+      const sendId = s.sendFor(val);
+      if (sendId !== null && sendId !== undefined) sendNRPN(+n, sendId);
+    } else if (s.pairs) {  // vel dst: same translation, own-voice menu
       const sendId = s.pairs.find(p => p[1] === val)?.[0];
       if (sendId !== null && sendId !== undefined) sendNRPN(+n, sendId);
     } else if (val <= 127) {
