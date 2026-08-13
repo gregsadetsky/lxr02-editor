@@ -8,7 +8,7 @@ const CCS = [
 [15,"SN","osc","OSC1 CT"],[16,"SN","osc","OSC1 FT"],[17,"CP","osc","OSC1 CT"],
 [18,"CP","osc","OSC1 FT"],[19,"CH","osc","OSC1 CT"],[20,"CH","osc","OSC1 FT"],
 [21,"V1","fm","WF MOD"],[22,"V2","fm","WF MOD"],[23,"V3","fm","WF MOD"],
-[28,"SN","osc","NSE FRQ"],[29,"SN","osc","MIX OSC NSE"],
+[28,"SN","osc","NOI"],[29,"SN","osc","MIX"],
 [30,"CP","fm","F1"],[31,"CP","fm","F2"],[32,"CP","fm","G1"],[33,"CP","fm","G2"],
 [24,"CP","fm","WAV O1"],[25,"CP","fm","WAV O2"],
 [34,"CH","fm","F1"],[35,"CH","fm","F2"],[36,"CH","fm","G1"],[37,"CH","fm","G2"],
@@ -200,10 +200,11 @@ function voicePages(v) {
     return e ? [{ cc: e }] : [];
   };
   const pages = [];
-  // device osc page order: coa fin wav pwm, then the voice-specific extras
+  // device osc page order: coa fin [voice extras: snare's noi mix] wav pwm
   const oscMain = ["OSC1 CT", "OSC1 FT", "OSC1 WF"];
-  const osc = [...oscMain.flatMap(byName),
-               ...ccs("osc").filter(r => !oscMain.includes(r.cc[3]))];
+  const osc = [...["OSC1 CT", "OSC1 FT"].flatMap(byName),
+               ...ccs("osc").filter(r => !oscMain.includes(r.cc[3])),
+               ...byName("OSC1 WF")];
   if (i !== undefined) osc.push({ label: "pwm", n: 100 + i, max: 127 });
   if (osc.length) pages.push(["osc", osc]);
   const amp = ccs("amp env");
