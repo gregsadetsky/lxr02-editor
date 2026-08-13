@@ -269,11 +269,11 @@ function voicePages(v) {
       { label: "out", n: 107, names: ["st1", "st2", "l1", "r1", "l2", "r2"] },
       { label: "d/w", n: 108, max: 100 },
       { label: "drv typ", n: 109, names: ["tub", "fld", "clp"] },
-      { label: "p1", n: 110, max: 127 }, { label: "p2", n: 111, max: 127 },
-      { label: "p3", n: 112, max: 127 }, { label: "p4", n: 113, max: 127 },
       { label: "rat", n: 114, names: ["1:1","2:1","3:1","4:1","6:1","8:1"] },
       { label: "rng wav", n: 115, names: WAVEFORMS },
-      { label: "del typ", n: 117, names: ["del", "pp"] }]]);
+      { label: "del typ", n: 117, names: ["del", "pp"] },
+      { label: "p1", n: 110, max: 127 }, { label: "p2", n: 111, max: 127 },
+      { label: "p3", n: 112, max: 127 }, { label: "p4", n: 113, max: 127 }]]);
   // the voice's velocity-mod destinations = its device menu: every param
   // row in page order EXCEPT wav o1/o2, lfo voi + lfo dst, and mix out
   // (verified absent from the menus), plus fx p1-p4 at the end.
