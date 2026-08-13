@@ -136,8 +136,20 @@ number).
   destinations by global id. nrpn-backed dests (pwm, click, flt typ/drv,
   lfo snc/wav/rtg/ofs, fx p1-p4) have ids past 127: unreachable over
   7-bit nrpn, device-knob only
-- still unexplained: the FILE byte encoding for dst (135/93/157/226 in
-  real kits) is a third numbering — neither menu position nor global id
+- FILE byte encoding CRACKED (calibration saves 0-9NITK, 2026-08-09):
+  one concatenated table — 0 = off, then each voice's menu params:
+  bases v1=1 v2=39 v3=77 sn=115 cp=152 hats=189 (drums 38 dests, snare
+  37, hats 36). for LFO dst the voice is whatever VOI targets (init
+  kits have voi=v1 — that's why untouched lfo dsts read tiny numbers).
+  retro-explains zubat's 135 = snare flt frq (snare local pos 20, which
+  also implies nse/mix sit on snare's osc pane and rpt in its amp menu)
+- editor now writes/reads the table index in .snd dst bytes and
+  live-sends the global id — vel dst round-trips device-correct
+- REMAINING: clp/cym menu is one entry short in our model (36 built vs
+  37 slots) — walk its dst menu on the device to find the extra entry;
+  lfo dst file bytes still untranslated (voi-dependent, editor sends
+  live correctly but saves the raw slider value); byte 8 flips 0/1
+  between saves sometimes, unexplained
 
 ### c8. lfo dst name table — CRACKED (28-value sweep, 2026-08-08)
 - dst menu index n = internal param enum n = (cc n+1)'s parameter for the

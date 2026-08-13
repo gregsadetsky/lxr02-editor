@@ -78,12 +78,10 @@ const DST_NAMES = { 0: "off", 5: "off", 97: "off", 98: "off" };  // holes:
 // enum 5/97/98 = the cc 6/98/99 gaps (data entry), device displays off
 for (const [cc, v, _s, name] of CCS)
   DST_NAMES[cc - 1] = v.toLowerCase() + " " + name.toLowerCase();
-// VEL dst sends are GLOBAL param ids too (verified 2026-08-09: sending
-// 18 makes cl hh's dst read "coa" = cc19's param, 19 reads "fin"). the
-// device knob menu is just a per-voice view over that table, so the
-// editor offers a stepper over the voice's own cc-backed destinations.
-// nrpn-backed dests (pwm, click, flt typ/drv, lfo extras, fx) have ids
-// past 127 — unreachable over 7-bit nrpn, the device knob only
+// VEL dst live-sends take GLOBAL param ids (verified: sending 18 makes
+// cl hh's dst read "coa" = cc19's param). the FILE byte is different:
+// an index into the concatenated per-voice menu table (see DST_BASE).
+// nrpn-backed dests have no 7-bit-sendable id: file-only ("·file")
 const VOICES = ["V1","V2","V3","SN","CP","CH","OH","ALL"];
 const VOICE_LABEL = {V1:"drum1", V2:"drum2", V3:"drum3",
                      SN:"snare", CP:"clp/cym", CH:"cl hh", OH:"op hh",
@@ -190,6 +188,10 @@ const cols = $("cols");
 // each voice mirrors the device's page order (walked on the real device):
 // osc, amplitude envelope, modulation, fm, click, filter, lfo, mix.
 // a row is {cc:[...]} straight from CCS, or an nrpn {label, n, max?, names?}.
+// .SND dst-byte table: 0 = off, then each voice's params in menu order
+// starting at its base (measured 2026-08-09: fin = base+1 on all voices)
+const DST_BASE = { V1: 1, V2: 39, V3: 77, SN: 115, CP: 152, CH: 189 };
+
 function voicePages(v) {
   const i = VIDX[v];  // undefined for ALL/master
   const ccs = sect => CCS.filter(c => c[1] === v && c[2] === sect).map(e => ({ cc: e }));
@@ -246,19 +248,34 @@ function voicePages(v) {
   const mix = ccs("mix");
   if (i !== undefined) mix.push({ label: "out", n: 87 + i, names: OUT_ROUTES });
   if (mix.length) pages.push(["mix", mix]);
-  // the voice's reachable velocity-mod destinations, page order:
-  // [global id, name] pairs. id = cc - 1 (VERIFIED 2026-08-09: sending 18
-  // makes cl hh's dst read coa = cc19's param; 19 reads fin). nrpn-backed
-  // dests (pwm/click/typ/drv/lfo extras/fx) have ids past 127 — the 7-bit
-  // data entry can't reach them, only the device knob can. waveform-mod
-  // selectors (wav o1/o2) aren't destinations on the device menu
+  // the voice's velocity-mod destinations = its device menu: every param
+  // row in page order EXCEPT wav o1/o2, lfo voi + lfo dst, and mix out
+  // (verified absent from the menus), plus fx p1-p4 at the end.
+  // pair = [sendId, fileIdx, name]: live sends use the GLOBAL id (= cc-1,
+  // verified; nrpn-backed dests have no 7-bit-reachable id -> null), the
+  // FILE byte stores base + menu position (calibration saves 2026-08-09)
   const dstRow = pages.flatMap(([_s, rows]) => rows)
     .find(r => r.label === "dst" && r.pairs === null);
-  if (dstRow)
-    dstRow.pairs = [[0, "off"], ...pages.flatMap(([_s, rows]) => rows)
-      .filter(r => r.cc && !r.cc[3].startsWith("WAV O"))
-      .map(r => [r.cc[0] - 1,
-                 (DST_NAMES[r.cc[0] - 1] || "").replace(/^\S+ /, "")])];
+  if (dstRow && DST_BASE[v] !== undefined) {
+    const entries = pages.flatMap(([sect, rows]) => rows
+      .filter(r =>
+        !(r.cc && r.cc[3].startsWith("WAV O")) &&
+        !(sect === "lfo" && (r.label === "voi" || r.label === "dst")) &&
+        r.label !== "out")
+      .map(r => r.cc
+        ? [r.cc[0] - 1, (DST_NAMES[r.cc[0] - 1] || "").replace(/^\S+ /, "")]
+        : [null, r.label]));
+    if (v === "CH") {  // the device menu is atk d1 D2 slp — d2 renders
+      const d1 = entries.findIndex(([id]) => id === 60);  // in the op hh
+      entries.splice(d1 + 1, 0, [61, "d2"]);              // lane here
+    }
+    entries.push([null, "p1"], [null, "p2"], [null, "p3"], [null, "p4"]);
+    // menu sizes check out against the measured base spacings (drums 38,
+    // snare 37, hats 36+off) EXCEPT clp/cym: 36 built vs 37 slots — one
+    // unknown menu entry, positions after it may sit one low (flagged)
+    dstRow.pairs = [[0, 0, "off"],
+      ...entries.map(([id, name], k) => [id, DST_BASE[v] + k, name])];
+  }
   return pages;
 }
 
@@ -271,21 +288,25 @@ for (const v of VOICES) {
   const addNrpn = ({ label, n, max, names, dst, pairs }) => {
     const row = document.createElement("div");
     row.className = "prm";
-    if (pairs) {  // stepper over [value, name] pairs (vel dst: global ids)
+    if (pairs) {  // dst stepper: [sendId, fileIdx, name] triples — the
+      // hidden value (and the file byte) is the fileIdx; live sends use
+      // the global id when the dest is midi-reachable
       row.innerHTML = `<label title="nrpn ${n}">${label}</label>
         <div class="wfstep"><button type="button">‹</button
-        ><span class="wfname" data-nrpn="${n}">${pairs[0][1]}</span
+        ><span class="wfname" data-nrpn="${n}">${pairs[0][2]}</span
         ><button type="button">›</button></div><span class="val"></span>`;
       const [prevB, nextB] = row.querySelectorAll("button");
       const nameEl = row.querySelector(".wfname");
       const hid = Object.assign(document.createElement("input"),
-                                { type: "hidden", value: String(pairs[0][0]) });
+                                { type: "hidden", value: String(pairs[0][1]) });
       row.appendChild(hid);
       const step = d => {
-        const cur = pairs.findIndex(p => p[0] === +hid.value);
+        const cur = pairs.findIndex(p => p[1] === +hid.value);
         const j = ((cur < 0 ? 0 : cur) + d + pairs.length) % pairs.length;
-        hid.value = pairs[j][0]; nameEl.textContent = pairs[j][1];
-        sendNRPN(n, pairs[j][0]); raw[NRPN_OFF(n)] = pairs[j][0];
+        hid.value = pairs[j][1];
+        nameEl.textContent = pairs[j][2] + (pairs[j][0] === null ? " ·file" : "");
+        if (pairs[j][0] !== null) sendNRPN(n, pairs[j][0]);
+        raw[NRPN_OFF(n)] = pairs[j][1];
       };
       prevB.onclick = () => step(-1);
       nextB.onclick = () => step(1);
@@ -443,8 +464,14 @@ document.addEventListener("keydown", e => {
 $("sendall").onclick = () => {  // the whole kit, paced: ~0.9s
   for (const cc of Object.keys(sliders)) sendCC(+cc, +sliders[cc].input.value);
   for (const n of Object.keys(nrpnSliders)) {
-    const val = +nrpnSliders[n].input.value;
-    if (val <= 127) sendNRPN(+n, val);  // 7-bit data entry: >127 is file-only
+    const s = nrpnSliders[n];
+    const val = +s.input.value;
+    if (s.pairs) {  // dst: the stored value is a FILE index — translate
+      const sendId = s.pairs.find(p => p[1] === val)?.[0];
+      if (sendId !== null && sendId !== undefined) sendNRPN(+n, sendId);
+    } else if (val <= 127) {
+      sendNRPN(+n, val);  // 7-bit data entry: >127 is file-only
+    }
   }
 };
 
@@ -473,7 +500,7 @@ function refreshFromRaw() {
     s.input.value = raw[off];
     if (s.show) s.show(raw[off]);
     else if (s.pairs) s.valEl.textContent =
-      s.pairs.find(p => p[0] === raw[off])?.[1] ?? raw[off];
+      s.pairs.find(p => p[1] === raw[off])?.[2] ?? raw[off];
     else s.valEl.textContent = s.names ? (s.names[raw[off]] ?? raw[off]) : raw[off];
   }
   drawAllEnvs();
