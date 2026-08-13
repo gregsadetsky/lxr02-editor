@@ -260,14 +260,18 @@ function voicePages(v) {
   const mix = ccs("mix");
   if (i !== undefined) mix.push({ label: "out", n: 87 + i, names: OUT_ROUTES });
   if (mix.length) pages.push(["mix", mix]);
-  if (v === "ALL")  // the per-kit fx block (manual 9.8; enum names TBD)
+  if (v === "ALL")  // the per-kit fx block. the DEVICE pane is dynamic:
+    // its menu changes with typ (drv: typ drv col ton vol / rng: wav frq
+    // / ...). p1-p4 are the reused per-type param slots
     pages.push(["fx", [
-      { label: "typ", n: 106, max: 127 }, { label: "rtg", n: 107, max: 127 },
-      { label: "amt", n: 108, max: 127 }, { label: "dtyp", n: 109, max: 127 },
+      { label: "typ", n: 106, names: ["off", "drv", "rng", "cmp", "del"] },
+      { label: "out", n: 107, names: ["st1", "st2", "l1", "r1", "l2", "r2"] },
+      { label: "d/w", n: 108, max: 100 },
+      { label: "drv typ", n: 109, names: ["tub", "fld", "clp"] },
       { label: "p1", n: 110, max: 127 }, { label: "p2", n: 111, max: 127 },
       { label: "p3", n: 112, max: 127 }, { label: "p4", n: 113, max: 127 },
-      { label: "rat", n: 114, max: 127 }, { label: "rmw", n: 115, max: 127 },
-      { label: "dly", n: 117, max: 127 }]]);
+      { label: "rat", n: 114, max: 127 }, { label: "rng wav", n: 115, max: 127 },
+      { label: "del typ", n: 117, max: 127 }]]);
   // the voice's velocity-mod destinations = its device menu: every param
   // row in page order EXCEPT wav o1/o2, lfo voi + lfo dst, and mix out
   // (verified absent from the menus), plus fx p1-p4 at the end.
