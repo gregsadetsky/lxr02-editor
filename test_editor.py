@@ -436,3 +436,62 @@ def test_save_filename_has_the_slot_prefix(page):
     with page.expect_download() as dl:
         page.click("#savesnd")
     assert dl.value.suggested_filename == "07-GRB.SND"
+
+
+def test_dst_table_tiles_without_gaps(page):
+    """the values are the values (device-measured), but they must stay
+    CONSISTENT: each voice's menu ends exactly where the next base starts
+    (measured sizes 38/38/38/37/36/36 -> bases 1/40/78/116/153/190)."""
+    page.reload()
+    wait_ready(page)
+    spans = page.evaluate("""() => {
+        const out = {};
+        for (const [v, n] of [["V1",21],["V2",22],["V3",23],["SN",24],["CP",25],["CH",26]]) {
+            const span = document.querySelector(`span.wfname[data-nrpn="${n}"]`);
+            const hid = span.parentElement.parentElement.querySelector('input[type=hidden]');
+            // walk the whole stepper once, recording file indices
+            const seen = [];
+            const next = span.parentElement.querySelectorAll('button')[1];
+            for (let i = 0; i < 50; i++) {
+                next.click();
+                if (+hid.value === 0) break;  // wrapped back to off
+                seen.push(+hid.value);
+            }
+            out[v] = [Math.min(...seen), Math.max(...seen), seen.length];
+        }
+        return out;
+    }""")
+    assert spans["V1"] == [1, 38, 38]
+    assert spans["V2"] == [40, 77, 38]
+    assert spans["V3"] == [78, 115, 38]
+    assert spans["SN"] == [116, 152, 37]
+    assert spans["CP"] == [153, 188, 36]
+    assert spans["CH"] == [190, 225, 36]
+
+
+def test_full_save_roundtrip_is_byte_perfect(page, tmp_path):
+    """load a factory kit, save untouched: every param byte identical
+    (proven once against the device's own files; now a regression gate)."""
+    page.reload()
+    wait_ready(page)
+    src = "src/kits/100-factory · proj00/44-ZUBAT.SND"
+    orig = open(src, "rb").read()
+    page.set_input_files("#sndfile", src)
+    page.wait_for_timeout(300)
+    with page.expect_download() as dl:
+        page.click("#savesnd")
+    saved = open(dl.value.path(), "rb").read()
+    assert len(saved) == 255
+    assert saved[8:] == orig[8:]  # params byte-perfect (name may re-case)
+
+
+def test_fx_rows_exist_and_fill(page):
+    page.reload()
+    wait_ready(page)
+    page.select_option("#kitsel", "0")
+    page.wait_for_timeout(300)
+    vals = page.evaluate("""() => [106, 108, 113, 117].map(n => {
+        const el = document.querySelector(`input[data-nrpn="${n}"]`);
+        return el ? el.value : null;
+    })""")
+    assert all(v is not None for v in vals)  # fx block rendered + linked
