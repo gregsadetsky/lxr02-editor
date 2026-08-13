@@ -88,9 +88,9 @@ const VOICE_LABEL = {V1:"drum1", V2:"drum2", V3:"drum3",
                      ALL:"master"};
 // triggers: [label, key, note, channel] — voices live on ch 1..7 (mixer
 // page setup), note is free ("any"); drum1 ch1 is chromatic-friendly
-const TRIGS = [["drum1","K",60,1],["drum2","T",60,2],["drum3","G",60,3],
-               ["snare","S",60,4],["clp/cym","C",60,5],
-               ["cl hh","H",60,6],["op hh","O",60,7]];
+const TRIGS = [["drum1","S",60,1],["drum2","D",60,2],["drum3","F",60,3],
+               ["snare","G",60,4],["clp/cym","H",60,5],
+               ["cl hh","J",60,6],["op hh","K",60,7]];
 // a factory init kit (erica hrtl pack) as the blank template, 255 bytes
 const INIT_SND = "SW5pdGtpdAAAAAAAAQAEAB8/KT86Py1Afz8yPwAAAAAAAAB/PQAAAAA4f39/f39/f0RoAAAAAAAAABUADQADAAoAawAFES4LBAoABgAAGl0HDiwOf1EWCg4PAAAAAAAAf39/f39/Pz8/AAA/Pz8/Pz8/Pz9/f39/f39/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABZkfwUAAAAA";
 
